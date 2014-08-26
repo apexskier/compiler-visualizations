@@ -46,11 +46,13 @@ in
     print("\n")
 end
 </pre>
-<pre>
-</pre>
+<input type="range" id="speedRange" min=1 max=300 step=1 value=50>
+<button type="button" id="stopLexing">Stop</button>
+<button type="button" id="startLexing">Start</button>
+<button type="button" id="resumeLexing">Resume</button>
 <span class="currentToken"></span>
-<span class="currentState"></span>
-<ul class="tokens"></ul>
+<span class="currentState">initial</span>
+<p class="tokens"></p>
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
@@ -350,45 +352,85 @@ function matchToken(str, state) {
     return {status: false};
 }
 var lastMatch;
-$source.selectAll('.letter').transition()
-    .delay(function(d, i) {
-        return i * 20;
-    })
-    .duration(100)
-    .style('color', '#999')
-    .style('font-weight', 'bold')
-    .style('background-color', 'yellow')
-    .each('start', function(d, i) {
-        currentToken += d3.select(this).text();
-        $currentToken.text(currentToken);
-        $currentState.text(currentState);
+var $speed = d3.select('#speedRange');
+var stoppedAt = 0;
+$speed.on('input', function() {
+    $speed.attr('value', +this.value);
+    stopAnimation();
+    resumeAnimation();
+});
+d3.select('#startLexing').on('click', startAnimation);
+function reset() {
+    $source.selectAll('.letter').transition(0);
+    $currentToken.text('');
+    $currentState.text('initial');
+    $tokens.html('');
+    $source.selectAll('.letter')
+        .style('color', '#222')
+        .style('background-color', 'white')
+        .style('font-weight', 'normal');
+}
+function startAnimation() {
+    reset();
+    lexTransition($source.selectAll('.letter'), 0);
+};
+function lexTransition(el, init) {
+    el.transition()
+        .delay(function(d, i) {
+            console.log($speed.attr('value'));
+            return i * (+$speed.attr('value'));
+        })
+        .duration(100)
+        .style('color', '#999')
+        .style('font-weight', 'bold')
+        .style('background-color', 'yellow')
+        .each('start', function(d, i) {
+        })
+        .each('end', function(d, i) {
+            currentToken += d3.select(this).text();
+            $currentToken.text(currentToken);
+            $currentState.text(currentState);
 
-        var match = matchToken(currentToken, currentState);
-        if (match.status) {
-            lastMatch = match;
-        } else if (lastMatch.status) {
-            var tok = lastMatch.match.onMatch(lastMatch.str);
-            console.log(lastMatch);
-            if (typeof tok != "undefined" && typeof tok.state == "string") {
-                console.log("changing state");
-                console.log(tok.state);
-                currentState = tok.state
+            var match = matchToken(currentToken, currentState);
+            if (match.status) {
+                lastMatch = match;
+            } else if (lastMatch.status) {
+                var tok = lastMatch.match.onMatch(lastMatch.str);
+                if (typeof tok != "undefined" && typeof tok.state == "string") {
+                    currentState = tok.state
+                }
+                if (typeof tok == "string") {
+                    insertToken(tok);
+                } else if (typeof tok == "object" && tok.hasOwnProperty('type')) {
+                    insertToken(tok.type + "(" + tok.val + ")");
+                }
+                lastMatch.status = false
+                currentToken = d3.select(this).text().trim();
+                lastMatch = matchToken(currentToken, currentState);
+                $source.selectAll('.letter').style('background-color', 'white');
             }
-            if (typeof tok == "string") {
-                $tokens.append('li').text(tok);
-            } else if (typeof tok == "object" && tok.hasOwnProperty('type')) {
-                $tokens.append('li').text(tok.type + "(" + tok.val + ")");
-            }
-            lastMatch.status = false
-            currentToken = d3.select(this).text().trim();
-            lastMatch = matchToken(currentToken, currentState);
-            $source.selectAll('.letter').style('background-color', 'white');
-        }
-    })
-    .each('end', function(d, i) {
-        d3.select(this)
-            .style('font-weight', 'normal')
-    });
+            d3.select(this)
+                .style('font-weight', 'normal')
+            stoppedAt = i + init;
+        });
+}
+function insertToken(contents) {
+    if ($tokens.text().trim() != "") {
+        $tokens.append('span').classed('divider', true).text(', ');
+    }
+    $tokens.append('span').text(contents);
+}
+d3.select('#resumeLexing').on('click', resumeAnimation);
+function resumeAnimation() {
+    $source.selectAll('.letter').transition(0);
+    lexTransition($source.selectAll('.letter').filter(function(d, i) {
+        return i > stoppedAt;
+    }), stoppedAt + 1);
+};
+d3.select('#stopLexing').on('click', stopAnimation);
+function stopAnimation() {
+    $source.selectAll('.letter').transition(0);
+}
 </script>
 </body>
 
