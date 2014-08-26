@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <head>
     <meta charset="utf-8">
-    <style>
-
-        .link {
-            stroke: #ccc;
-        }
-
-        .node text {
-            pointer-events: none;
-            font: 10px sans-serif;
-        }
-
-    </style>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
 </html>
 <body>
-<pre class="source">
+    <div class="container">
+        <h1>Compiler Visualizations</h1>
+        <h2>Lexer</h2>
+        <p>The lexer scans source code, looking for tokens. Tokens are matched based on
+        regular expressions, giving preference to longest matches and order. States are used to
+        determine when certain expressions can be matched.</p>
+        <p><a href="js/lex.js" target="_blank">Lex file</a></p>
+        <div class="box cf">
+            <div class="half">
+                <h4>Source</h4>
+                <pre class="source" contenteditable>
 let
     function readline():string =
         /* strips leading spaces */
@@ -44,394 +43,29 @@ in
     print("hello, ");
     print(you.name);
     print("\n")
-end
-</pre>
-<input type="range" id="speedRange" min=1 max=300 step=1 value=50>
-<button type="button" id="stopLexing">Stop</button>
-<button type="button" id="startLexing">Start</button>
-<button type="button" id="resumeLexing">Resume</button>
-<span class="currentToken"></span>
-<span class="currentState">initial</span>
-<p class="tokens"></p>
+end</pre>
+            </div>
+            <div class="half">
+                <p><b>Input</b>&nbsp;&nbsp;&nbsp;
+                <code class="currentToken"></span></code>
+                <p><b>State</b>&nbsp;&nbsp;&nbsp;
+                <code class="currentState">initial</span></code>
+                <h4>Tokens</h4>
+                <p class="tokens"></p>
+            </div>
+        </div>
+        <div class="controls">
+            <button type="button" id="stopLexing">Stop</button>
+            <button type="button" id="startLexing">Start</button>
+            <button type="button" id="resumeLexing">Resume</button>
+            <label for="speedRange">Speed</label>
+            <input type="range" name="speedRange" id="speedRange" min=1 max=300 step=1 value=50>
+        </div>
+    </div>
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<script>
-var rawSource = d3.select('.source').text();
-var $source = d3.select('.source');
-$source.text("");
-for (i in rawSource) {
-    $source.append('span')
-        .attr('class', 'letter')
-        .style('background-color', 'white')
-        .text(rawSource[i]);
-}
-console.log('done setting up');
-var currentToken = "";
-var $tokens = d3.select('.tokens');
-var $currentToken = d3.select('.currentToken');
-var $currentState = d3.select('.currentState');
-var currentState = 'initial';
-var lex = [
-    {
-        re: /^\/\*$/,
-        state: ['initial', 'comment'],
-        onMatch: function(str) { return { state: 'comment' }; }
-    },
-    {
-        re: /^\*\/$/,
-        state: ['comment'],
-        onMatch: function(str) { return { state: 'initial' }; }
-    },
-    {
-        re: /^.$/,
-        state: ['comment'],
-        onMatch: function(str) { return; }
-    },
-    {
-        re: /^\s$/,
-        state: ['initial', 'comment'],
-        onMatch: function(str) { return; }
-    },
-    {
-        re: /^type$/,
-        state: ['initial'],
-        onMatch: function(str) { return "TYPE"; }
-    },
-    {
-        re: /^var$/,
-        state: ['initial'],
-        onMatch: function(str) { return "VAR"; }
-    },
-    {
-        re: /^function$/,
-        state: ['initial'],
-        onMatch: function(str) { return "FUNCTION"; }
-    },
-    {
-        re: /^break$/,
-        state: ['initial'],
-        onMatch: function(str) { return "BREAK"; }
-    },
-    {
-        re: /^of$/,
-        state: ['initial'],
-        onMatch: function(str) { return "OF"; }
-    },
-    {
-        re: /^end$/,
-        state: ['initial'],
-        onMatch: function(str) { return "END"; }
-    },
-    {
-        re: /^in$/,
-        state: ['initial'],
-        onMatch: function(str) { return "IN"; }
-    },
-    {
-        re: /^nil$/,
-        state: ['initial'],
-        onMatch: function(str) { return "NIL"; }
-    },
-    {
-        re: /^let$/,
-        state: ['initial'],
-        onMatch: function(str) { return "LET"; }
-    },
-    {
-        re: /^do$/,
-        state: ['initial'],
-        onMatch: function(str) { return "DO"; }
-    },
-    {
-        re: /^to$/,
-        state: ['initial'],
-        onMatch: function(str) { return "TO"; }
-    },
-    {
-        re: /^for$/,
-        state: ['initial'],
-        onMatch: function(str) { return "FOR"; }
-    },
-    {
-        re: /^while$/,
-        state: ['initial'],
-        onMatch: function(str) { return "WHILE"; }
-    },
-    {
-        re: /^else$/,
-        state: ['initial'],
-        onMatch: function(str) { return "ELSE"; }
-    },
-    {
-        re: /^then$/,
-        state: ['initial'],
-        onMatch: function(str) { return "THEN"; }
-    },
-    {
-        re: /^if$/,
-        state: ['initial'],
-        onMatch: function(str) { return "IF"; }
-    },
-    {
-        re: /^array$/,
-        state: ['initial'],
-        onMatch: function(str) { return "ARRAY"; }
-    },
-    {
-        re: /^class$/,
-        state: ['initial'],
-        onMatch: function(str) { return "CLASS"; }
-    },
-    {
-        re: /^extends$/,
-        state: ['initial'],
-        onMatch: function(str) { return "EXTENDS"; }
-    },
-    {
-        re: /^method$/,
-        state: ['initial'],
-        onMatch: function(str) { return "METHOD"; }
-    },
-    {
-        re: /^new$/,
-        state: ['initial'],
-        onMatch: function(str) { return "NEW"; }
-    },
-    {
-        re: /^:=$/,
-        state: ['initial'],
-        onMatch: function(str) { return "ASSIGN"; }
-    },
-    {
-        re: /^\|$/,
-        state: ['initial'],
-        onMatch: function(str) { return "OR"; }
-    },
-    {
-        re: /^&$/,
-        state: ['initial'],
-        onMatch: function(str) { return "AND"; }
-    },
-    {
-        re: /^>=$/,
-        state: ['initial'],
-        onMatch: function(str) { return "GE"; }
-    },
-    {
-        re: /^>$/,
-        state: ['initial'],
-        onMatch: function(str) { return "GT"; }
-    },
-    {
-        re: /^<=$/,
-        state: ['initial'],
-        onMatch: function(str) { return "LE"; }
-    },
-    {
-        re: /^<$/,
-        state: ['initial'],
-        onMatch: function(str) { return "LT"; }
-    },
-    {
-        re: /^<>$/,
-        state: ['initial'],
-        onMatch: function(str) { return "NEQ"; }
-    },
-    {
-        re: /^=$/,
-        state: ['initial'],
-        onMatch: function(str) { return "EQ"; }
-    },
-    {
-        re: /^\/$/,
-        state: ['initial'],
-        onMatch: function(str) { return "DIVIDE"; }
-    },
-    {
-        re: /^\*$/,
-        state: ['initial'],
-        onMatch: function(str) { return "TIMES"; }
-    },
-    {
-        re: /^-$/,
-        state: ['initial'],
-        onMatch: function(str) { return "MINUS"; }
-    },
-    {
-        re: /^\+$/,
-        state: ['initial'],
-        onMatch: function(str) { return "PLUS"; }
-    },
-    {
-        re: /^\.$/,
-        state: ['initial'],
-        onMatch: function(str) { return "DOT"; }
-    },
-    {
-        re: /^}$/,
-        state: ['initial'],
-        onMatch: function(str) { return "RBRACE"; }
-    },
-    {
-        re: /^{$/,
-        state: ['initial'],
-        onMatch: function(str) { return "LBRACE"; }
-    },
-    {
-        re: /^]$/,
-        state: ['initial'],
-        onMatch: function(str) { return "RBRACK"; }
-    },
-    {
-        re: /^\[$/,
-        state: ['initial'],
-        onMatch: function(str) { return "LBRACK"; }
-    },
-    {
-        re: /^\)$/,
-        state: ['initial'],
-        onMatch: function(str) { return "RPAREN"; }
-    },
-    {
-        re: /^\($/,
-        state: ['initial'],
-        onMatch: function(str) { return "LPAREN"; }
-    },
-    {
-        re: /^;$/,
-        state: ['initial'],
-        onMatch: function(str) { return "SEMICOLON"; }
-    },
-    {
-        re: /^:$/,
-        state: ['initial'],
-        onMatch: function(str) { return "COLON"; }
-    },
-    {
-        re: /^,$/,
-        state: ['initial'],
-        onMatch: function(str) { return "COMMA"; }
-    },
-    {
-        re: /^"$/,
-        state: ['initial'],
-        onMatch: function(str) { return { state: "string" }; }
-    },
-    /*{
-        re: /^\\\^\]|\\\^[\@A-Z\[\\\^_]|\\[abfnrtv\\\"]|\\[0-9][0-9][0-9]$/,
-        state: ['string'],
-        onMatch: function(str) { return; }
-    }, */
-    {
-        re: /^\"$/,
-        state: ['string'],
-        onMatch: function(str) { return { state: "initial", type: "STRING", val: ""}; }
-    },
-    {
-        re: /^.$/,
-        state: ['string'],
-        onMatch: function(str) { return; }
-    },
-    {
-        re: /^[0-9]+$/,
-        state: ['initial'],
-        onMatch: function(str) { return {type: "INT", val: parseInt(str)}; }
-    },
-    {
-        re: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-        state: ['initial'],
-        onMatch: function(str) { return {type: "ID", val: str}; }
-    }
-];
-function matchToken(str, state) {
-    for (tok in lex) {
-        if (lex[tok].state.indexOf(state) != -1 && str.match(lex[tok].re)) {
-            return { status: true, str: str, tok: lex[tok], match: lex[tok] };
-        }
-    }
-    return {status: false};
-}
-var lastMatch;
-var $speed = d3.select('#speedRange');
-var stoppedAt = 0;
-$speed.on('input', function() {
-    $speed.attr('value', +this.value);
-    stopAnimation();
-    resumeAnimation();
-});
-d3.select('#startLexing').on('click', startAnimation);
-function reset() {
-    $source.selectAll('.letter').transition(0);
-    $currentToken.text('');
-    $currentState.text('initial');
-    $tokens.html('');
-    $source.selectAll('.letter')
-        .style('color', '#222')
-        .style('background-color', 'white')
-        .style('font-weight', 'normal');
-}
-function startAnimation() {
-    reset();
-    lexTransition($source.selectAll('.letter'), 0);
-};
-function lexTransition(el, init) {
-    el.transition()
-        .delay(function(d, i) {
-            console.log($speed.attr('value'));
-            return i * (+$speed.attr('value'));
-        })
-        .duration(100)
-        .style('color', '#999')
-        .style('font-weight', 'bold')
-        .style('background-color', 'yellow')
-        .each('start', function(d, i) {
-        })
-        .each('end', function(d, i) {
-            currentToken += d3.select(this).text();
-            $currentToken.text(currentToken);
-            $currentState.text(currentState);
-
-            var match = matchToken(currentToken, currentState);
-            if (match.status) {
-                lastMatch = match;
-            } else if (lastMatch.status) {
-                var tok = lastMatch.match.onMatch(lastMatch.str);
-                if (typeof tok != "undefined" && typeof tok.state == "string") {
-                    currentState = tok.state
-                }
-                if (typeof tok == "string") {
-                    insertToken(tok);
-                } else if (typeof tok == "object" && tok.hasOwnProperty('type')) {
-                    insertToken(tok.type + "(" + tok.val + ")");
-                }
-                lastMatch.status = false
-                currentToken = d3.select(this).text().trim();
-                lastMatch = matchToken(currentToken, currentState);
-                $source.selectAll('.letter').style('background-color', 'white');
-            }
-            d3.select(this)
-                .style('font-weight', 'normal')
-            stoppedAt = i + init;
-        });
-}
-function insertToken(contents) {
-    if ($tokens.text().trim() != "") {
-        $tokens.append('span').classed('divider', true).text(', ');
-    }
-    $tokens.append('span').text(contents);
-}
-d3.select('#resumeLexing').on('click', resumeAnimation);
-function resumeAnimation() {
-    $source.selectAll('.letter').transition(0);
-    lexTransition($source.selectAll('.letter').filter(function(d, i) {
-        return i > stoppedAt;
-    }), stoppedAt + 1);
-};
-d3.select('#stopLexing').on('click', stopAnimation);
-function stopAnimation() {
-    $source.selectAll('.letter').transition(0);
-}
-</script>
+<script src="js/lex.js" type="text/javascript"></script>
+<script src="js/lexer.js" type="text/javascript"></script>
 </body>
 
 
