@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <style>
+
+        .link {
+            stroke: #ccc;
+        }
+
+        .node text {
+            pointer-events: none;
+            font: 10px sans-serif;
+        }
+
+    </style>
+</html>
+<body>
+<pre class="source">
+let
+    function readline():string =
+        /* strips leading spaces */
+        let
+            var ret:string := ""
+            var buffer := getchar()
+        in
+            (while buffer = " " do
+                buffer := getchar();
+            while buffer <> "\n" do
+                (ret := concat(ret, buffer);
+                buffer := getchar());
+            ret)
+        end
+
+    class Person extends Object {
+        var name:string := "anonymous"
+        method init() =
+            (print("What is your name: ");
+            name := readline())
+    }
+
+    var you := new Person
+in
+    you.init();
+    print("hello, ");
+    print(you.name);
+    print("\n")
+end
+</pre>
+<pre>
+</pre>
+<span class="currentToken"></span>
+<span class="currentState"></span>
+<ul class="tokens"></ul>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+var rawSource = d3.select('.source').text();
+var $source = d3.select('.source');
+$source.text("");
+for (i in rawSource) {
+    $source.append('span')
+        .attr('class', 'letter')
+        .style('background-color', 'white')
+        .text(rawSource[i]);
+}
+console.log('done setting up');
+var currentToken = "";
+var $tokens = d3.select('.tokens');
+var $currentToken = d3.select('.currentToken');
+var $currentState = d3.select('.currentState');
+var currentState = 'initial';
+var lex = [
+    {
+        re: /^\/\*$/,
+        state: ['initial', 'comment'],
+        onMatch: function(str) { return { state: 'comment' }; }
+    },
+    {
+        re: /^\*\/$/,
+        state: ['comment'],
+        onMatch: function(str) { return { state: 'initial' }; }
+    },
+    {
+        re: /^.$/,
+        state: ['comment'],
+        onMatch: function(str) { return; }
+    },
+    {
+        re: /^\s$/,
+        state: ['initial', 'comment'],
+        onMatch: function(str) { return; }
+    },
+    {
+        re: /^type$/,
+        state: ['initial'],
+        onMatch: function(str) { return "TYPE"; }
+    },
+    {
+        re: /^var$/,
+        state: ['initial'],
+        onMatch: function(str) { return "VAR"; }
+    },
+    {
+        re: /^function$/,
+        state: ['initial'],
+        onMatch: function(str) { return "FUNCTION"; }
+    },
+    {
+        re: /^break$/,
+        state: ['initial'],
+        onMatch: function(str) { return "BREAK"; }
+    },
+    {
+        re: /^of$/,
+        state: ['initial'],
+        onMatch: function(str) { return "OF"; }
+    },
+    {
+        re: /^end$/,
+        state: ['initial'],
+        onMatch: function(str) { return "END"; }
+    },
+    {
+        re: /^in$/,
+        state: ['initial'],
+        onMatch: function(str) { return "IN"; }
+    },
+    {
+        re: /^nil$/,
+        state: ['initial'],
+        onMatch: function(str) { return "NIL"; }
+    },
+    {
+        re: /^let$/,
+        state: ['initial'],
+        onMatch: function(str) { return "LET"; }
+    },
+    {
+        re: /^do$/,
+        state: ['initial'],
+        onMatch: function(str) { return "DO"; }
+    },
+    {
+        re: /^to$/,
+        state: ['initial'],
+        onMatch: function(str) { return "TO"; }
+    },
+    {
+        re: /^for$/,
+        state: ['initial'],
+        onMatch: function(str) { return "FOR"; }
+    },
+    {
+        re: /^while$/,
+        state: ['initial'],
+        onMatch: function(str) { return "WHILE"; }
+    },
+    {
+        re: /^else$/,
+        state: ['initial'],
+        onMatch: function(str) { return "ELSE"; }
+    },
+    {
+        re: /^then$/,
+        state: ['initial'],
+        onMatch: function(str) { return "THEN"; }
+    },
+    {
+        re: /^if$/,
+        state: ['initial'],
+        onMatch: function(str) { return "IF"; }
+    },
+    {
+        re: /^array$/,
+        state: ['initial'],
+        onMatch: function(str) { return "ARRAY"; }
+    },
+    {
+        re: /^class$/,
+        state: ['initial'],
+        onMatch: function(str) { return "CLASS"; }
+    },
+    {
+        re: /^extends$/,
+        state: ['initial'],
+        onMatch: function(str) { return "EXTENDS"; }
+    },
+    {
+        re: /^method$/,
+        state: ['initial'],
+        onMatch: function(str) { return "METHOD"; }
+    },
+    {
+        re: /^new$/,
+        state: ['initial'],
+        onMatch: function(str) { return "NEW"; }
+    },
+    {
+        re: /^:=$/,
+        state: ['initial'],
+        onMatch: function(str) { return "ASSIGN"; }
+    },
+    {
+        re: /^\|$/,
+        state: ['initial'],
+        onMatch: function(str) { return "OR"; }
+    },
+    {
+        re: /^&$/,
+        state: ['initial'],
+        onMatch: function(str) { return "AND"; }
+    },
+    {
+        re: /^>=$/,
+        state: ['initial'],
+        onMatch: function(str) { return "GE"; }
+    },
+    {
+        re: /^>$/,
+        state: ['initial'],
+        onMatch: function(str) { return "GT"; }
+    },
+    {
+        re: /^<=$/,
+        state: ['initial'],
+        onMatch: function(str) { return "LE"; }
+    },
+    {
+        re: /^<$/,
+        state: ['initial'],
+        onMatch: function(str) { return "LT"; }
+    },
+    {
+        re: /^<>$/,
+        state: ['initial'],
+        onMatch: function(str) { return "NEQ"; }
+    },
+    {
+        re: /^=$/,
+        state: ['initial'],
+        onMatch: function(str) { return "EQ"; }
+    },
+    {
+        re: /^\/$/,
+        state: ['initial'],
+        onMatch: function(str) { return "DIVIDE"; }
+    },
+    {
+        re: /^\*$/,
+        state: ['initial'],
+        onMatch: function(str) { return "TIMES"; }
+    },
+    {
+        re: /^-$/,
+        state: ['initial'],
+        onMatch: function(str) { return "MINUS"; }
+    },
+    {
+        re: /^\+$/,
+        state: ['initial'],
+        onMatch: function(str) { return "PLUS"; }
+    },
+    {
+        re: /^\.$/,
+        state: ['initial'],
+        onMatch: function(str) { return "DOT"; }
+    },
+    {
+        re: /^}$/,
+        state: ['initial'],
+        onMatch: function(str) { return "RBRACE"; }
+    },
+    {
+        re: /^{$/,
+        state: ['initial'],
+        onMatch: function(str) { return "LBRACE"; }
+    },
+    {
+        re: /^]$/,
+        state: ['initial'],
+        onMatch: function(str) { return "RBRACK"; }
+    },
+    {
+        re: /^\[$/,
+        state: ['initial'],
+        onMatch: function(str) { return "LBRACK"; }
+    },
+    {
+        re: /^\)$/,
+        state: ['initial'],
+        onMatch: function(str) { return "RPAREN"; }
+    },
+    {
+        re: /^\($/,
+        state: ['initial'],
+        onMatch: function(str) { return "LPAREN"; }
+    },
+    {
+        re: /^;$/,
+        state: ['initial'],
+        onMatch: function(str) { return "SEMICOLON"; }
+    },
+    {
+        re: /^:$/,
+        state: ['initial'],
+        onMatch: function(str) { return "COLON"; }
+    },
+    {
+        re: /^,$/,
+        state: ['initial'],
+        onMatch: function(str) { return "COMMA"; }
+    },
+    {
+        re: /^"$/,
+        state: ['initial'],
+        onMatch: function(str) { return { state: "string" }; }
+    },
+    /*{
+        re: /^\\\^\]|\\\^[\@A-Z\[\\\^_]|\\[abfnrtv\\\"]|\\[0-9][0-9][0-9]$/,
+        state: ['string'],
+        onMatch: function(str) { return; }
+    }, */
+    {
+        re: /^\"$/,
+        state: ['string'],
+        onMatch: function(str) { return { state: "initial", type: "STRING", val: ""}; }
+    },
+    {
+        re: /^.$/,
+        state: ['string'],
+        onMatch: function(str) { return; }
+    },
+    {
+        re: /^[0-9]+$/,
+        state: ['initial'],
+        onMatch: function(str) { return {type: "INT", val: parseInt(str)}; }
+    },
+    {
+        re: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+        state: ['initial'],
+        onMatch: function(str) { return {type: "ID", val: str}; }
+    }
+];
+function matchToken(str, state) {
+    for (tok in lex) {
+        if (lex[tok].state.indexOf(state) != -1 && str.match(lex[tok].re)) {
+            return { status: true, str: str, tok: lex[tok], match: lex[tok] };
+        }
+    }
+    return {status: false};
+}
+var lastMatch;
+$source.selectAll('.letter').transition()
+    .delay(function(d, i) {
+        return i * 20;
+    })
+    .duration(100)
+    .style('color', '#999')
+    .style('font-weight', 'bold')
+    .style('background-color', 'yellow')
+    .each('start', function(d, i) {
+        currentToken += d3.select(this).text();
+        $currentToken.text(currentToken);
+        $currentState.text(currentState);
+
+        var match = matchToken(currentToken, currentState);
+        if (match.status) {
+            lastMatch = match;
+        } else if (lastMatch.status) {
+            var tok = lastMatch.match.onMatch(lastMatch.str);
+            console.log(lastMatch);
+            if (typeof tok != "undefined" && typeof tok.state == "string") {
+                console.log("changing state");
+                console.log(tok.state);
+                currentState = tok.state
+            }
+            if (typeof tok == "string") {
+                $tokens.append('li').text(tok);
+            } else if (typeof tok == "object" && tok.hasOwnProperty('type')) {
+                $tokens.append('li').text(tok.type + "(" + tok.val + ")");
+            }
+            lastMatch.status = false
+            currentToken = d3.select(this).text().trim();
+            lastMatch = matchToken(currentToken, currentState);
+            $source.selectAll('.letter').style('background-color', 'white');
+        }
+    })
+    .each('end', function(d, i) {
+        d3.select(this)
+            .style('font-weight', 'normal')
+    });
+</script>
+</body>
+
+
