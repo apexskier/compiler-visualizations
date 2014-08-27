@@ -99,7 +99,7 @@ function lexTransition(el, init) {
                 if (typeof tok == "string") {
                     insertToken(tok, tok);
                 } else if (typeof tok == "object" && tok.hasOwnProperty('type')) {
-                    insertToken(tok.type + "(" + tok.val + ")", tok.type);
+                    insertToken(tok.type + ' "' + tok.val + '"', tok.type);
                 }
                 lastMatch.status = false
                 currentToken = d3.select(this).text().trim();
@@ -127,9 +127,6 @@ function lexTransition(el, init) {
         });
 }
 function insertToken(contents, id) {
-    if ($tokens.text().trim() != "") {
-        $tokens.append('span').classed('divider', true).text(', ');
-    }
     $tokens.append('span').classed('token', true).attr('data-id', id).text(contents);
 }
 d3.select('#resumeLexing').on('click', resumeAnimation);
