@@ -19,7 +19,9 @@ var svg = d3.select("body").append("svg")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 d3.json("absyn.json", function(error, data) {
-    var i = 0;
+    //var root;
+
+    var i = 0; // counter to make node title's unique
     function processNode(input, p) {
         switch (typeof input) {
             case "object":
@@ -57,7 +59,6 @@ d3.json("absyn.json", function(error, data) {
         }
     }
 
-    root.children.forEach(collapse);
     update(root);
 });
 
