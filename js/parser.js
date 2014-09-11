@@ -19,13 +19,29 @@
     var $stack = d3.select('.parseStack');
     $tokens.selectAll('.token').transition()
     .delay(function(d, i) {
-        return i * 500;//(+$speed.attr('value'));
+        return i * 20;//(+$speed.attr('value'));
     }).each('start', function(d, i) {
         var id = d3.select(this).attr('data-id');
         $stack.append('li').text(id);
+        parseTree.children.push({name: "id"});
     }).each('end', function(d, i) {
         checkReduce(this, d, i);
     });
+    var parseTree = {
+        name: "tree",
+        children: []
+    }
+
+
+    function closure(I) {
+        var I_ = d3.set(I.values());
+        do {
+
+        } while (I.size() == I_.size() &&
+                I.values().every(function(v) { I_.has(v) }))
+    }
+
+
     function checkReduce(th, d, i) {
         var id = d3.select(th).attr('data-id');
         var stackItems = $stack.selectAll('li')[0].map(function(v) {
@@ -34,8 +50,8 @@
         for (var j = 0; j <= stackItems.length - 1; j++) {
             var match = revmap.get(stackItems.slice(j).join(" "));
             if (typeof match != "undefined") {
-                console.log(stackItems.slice(j).join(" "));
-                console.log(match)
+                //console.log(stackItems.slice(j).join(" "));
+                //console.log(match)
                 if (match.length == 1) {
                     var toRemove = $stack.selectAll('li').filter(function(d, i) {
                         return i >= j;
@@ -56,6 +72,7 @@
                 }*/
             }
         }
-        console.log('done');
+        //console.log('done');
     }
+    console.log(parseTree);
 })();
