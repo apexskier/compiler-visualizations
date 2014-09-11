@@ -12,59 +12,58 @@ var tree = d3.layout.tree()
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-    var svg = d3.select("body").append("svg")
+var svg = d3.select("body").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    d3.json("absyn.json", function(error, data) {
-        var i = 0;
-        function processNode(input, p) {
-            switch (typeof input) {
-                case "object":
-                    if (input instanceof Array) {
-                        return input.map(function(v) { return processNode(v, p) });
-                    } else {
-                        n = input.exp + " " + (++i)
-                        return {
-                            "name": n,
-                            "children": processNode(input.token, n),
-                            "parent": p
-                        };
-                    }
-                case "string":
+d3.json("absyn.json", function(error, data) {
+    var i = 0;
+    function processNode(input, p) {
+        switch (typeof input) {
+            case "object":
+                if (input instanceof Array) {
+                    return input.map(function(v) { return processNode(v, p) });
+                } else {
+                    n = input.exp + " " + (++i)
                     return {
-                        "name": input + " " + (++i),
+                        "name": n,
+                        "children": processNode(input.token, n),
                         "parent": p
                     };
-            }
-        }
-        root = processNode(data, null);
-        console.log(root);
-
-        root.x0 = height / 2;
-        root.y0 = 0;
-
-        function collapse(d) {
-            if (d.children) {
-                if (!(d.children instanceof Array)) {
-                    d.children = [d.children];
                 }
-                d._children = d.children;
-                d._children.forEach(collapse);
-                d.children = null;
-            }
+            case "string":
+                return {
+                    "name": input + " " + (++i),
+                    "parent": p
+                };
         }
+    }
+    root = processNode(data, null);
+    console.log(root);
 
-        root.children.forEach(collapse);
-        update(root);
-    });
+    root.x0 = height / 2;
+    root.y0 = 0;
+
+    function collapse(d) {
+        if (d.children) {
+            if (!(d.children instanceof Array)) {
+                d.children = [d.children];
+            }
+            d._children = d.children;
+            d._children.forEach(collapse);
+            d.children = null;
+        }
+    }
+
+    root.children.forEach(collapse);
+    update(root);
+});
 
 d3.select(self.frameElement).style("height", "800px");
 
 function update(source) {
-
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse(),
         links = tree.links(nodes);
