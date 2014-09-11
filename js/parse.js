@@ -43,7 +43,6 @@ d3.json("absyn.json", function(error, data) {
         }
     }
     root = processNode(data, null);
-    console.log(root);
 
     root.x0 = height / 2;
     root.y0 = 0;
