@@ -1,0 +1,67 @@
+/*
+ * LetExp([
+ *  FunctionDec[
+ *   (readline,[],
+ * SOME(string),
+ *    LetExp([
+ *     VarDec(ret,false,SOME(string),
+ *      StringExp("")),
+ *     VarDec(buffer,false,NONE,
+ *      CallExp(getchar,[]))],
+ *     SeqExp[
+ *      SeqExp[
+ *       WhileExp(
+ *        OpExp(EqOp,
+ *         VarExp(
+ *          SimpleVar(buffer)),
+ *         StringExp(" ")),
+ *        AssignExp(
+ *         SimpleVar(buffer),
+ *         CallExp(getchar,[]))),
+ *       WhileExp(
+ *        OpExp(NeqOp,
+ *         VarExp(
+ *          SimpleVar(buffer)),
+ *         StringExp("
+ * ")),
+ *        SeqExp[
+ *         AssignExp(
+ *          SimpleVar(ret),
+ *          CallExp(concat,[
+ *           VarExp(
+ *            SimpleVar(ret)),
+ *           VarExp(
+ *            SimpleVar(buffer))])),
+ *         AssignExp(
+ *          SimpleVar(buffer),
+ *          CallExp(getchar,[]))]),
+ *       VarExp(
+ *        SimpleVar(ret))]]))],
+ *  ClassDec(Person,Object,[
+ *   VarDec(name,true,SOME(string),
+ *    StringExp("anonymous")),
+ *   FunctionDec[
+ *    (init,[],
+ * NONE,
+ *     SeqExp[
+ *      CallExp(print,[
+ *       StringExp("What is your name: ")]),
+ *      AssignExp(
+ *       SimpleVar(name),
+ *       CallExp(readline,[]))])]]),
+ *  VarDec(you,false,NONE,
+ *   NewExp(Person))],
+ *  SeqExp[
+ *   MethodExp(
+ *    SimpleVar(you),init,[]),
+ *   CallExp(print,[
+ *    StringExp("hello, ")]),
+ *   CallExp(print,[
+ *    VarExp(
+ *     FieldVar(
+ *      SimpleVar(you),
+ *      name))]),
+ *   CallExp(print,[
+ *    StringExp("
+ * ")])])
+ */
