@@ -3,8 +3,8 @@ var margin = {top: 20, right: 120, bottom: 20, left: 120},
     height = 800 - margin.top - margin.bottom,
     duration = 1000;
 
-var idCount = 0,
-    duration = 750;
+var idCount = 1,
+    duration = 500;
 
 var tree = d3.layout.tree()
     .size([height, width]);
@@ -78,6 +78,7 @@ d3.json("absyn.json", function(error, data) {
     }
     var rootNode = {
         name: "program",
+        id: 0,
         children: []
     }
 
@@ -173,10 +174,16 @@ d3.json("absyn.json", function(error, data) {
     }
     walkTree(absyn, 0);
 
+    var newX0;
     function update(source) {
         // Compute the new tree layout.
         var nodes = tree.nodes(source).reverse(),
             links = tree.links(nodes);
+        var rootNode = nodes.filter(function(d) {
+            return d.id === 0;
+        })[0];
+        console.log(rootNode.x);
+        source.x0 = rootNode.x;
 
         // Normalize for fixed-depth.
         nodes.forEach(function(d) { d.y = d.depth * 180; });
@@ -188,7 +195,7 @@ d3.json("absyn.json", function(error, data) {
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
             .attr("class", "node")
-            .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+            .attr("transform", function(d) { return "translate(" + source.y0 + "," + (newX0 || source.x0) + ")"; })
             .on("click", click);
 
         nodeEnter.append("circle")
@@ -204,6 +211,7 @@ d3.json("absyn.json", function(error, data) {
                 if (a.length > 1) {
                     a.pop();
                 }
+                //a.push(d.id);
                 return a.join(' ');
             })
             .style("fill-opacity", 1e-6);
@@ -240,7 +248,7 @@ d3.json("absyn.json", function(error, data) {
         link.enter().insert("path", "g")
             .attr("class", "link")
             .attr("d", function(d) {
-                var o = {x: source.x0, y: source.y0};
+                var o = {x: (newX0 || source.x0), y: source.y0};
                 return diagonal({source: o, target: o});
             });
 
@@ -263,6 +271,7 @@ d3.json("absyn.json", function(error, data) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
+        newX0 = source.x0;
     }
 
     d3.select(self.frameElement).style("height", "800px");
