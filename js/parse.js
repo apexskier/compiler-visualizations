@@ -2,7 +2,7 @@ var margin = {top: 20, right: 120, bottom: 20, left: 120},
     width = 1600,
     height = 800 - margin.top - margin.bottom;
 
-var i = 0,
+var idCount = 0,
     duration = 750;
 
 var tree = d3.layout.tree()
@@ -18,18 +18,18 @@ var svg = d3.select("body").append("svg")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 d3.json("absyn.json", function(error, data) {
-    var i = 0; // counter to make node title's unique
     function processNode(input, p) {
         switch (typeof input.token) {
             case "object":
-                var n = input.exp + " " + i;
+                var n = input.exp + " " + idCount;
                 if (input.token instanceof Array) {
                     return {
                         "name": n,
                         "children": input.token.map(function(v) { return processNode(v, n) }),
                         "parent": p,
                         "_origParent": p,
-                        "myid": i++
+                        "myid": idCount,
+                        "id": idCount++
                     }
                 } else {
                     return {
@@ -37,24 +37,27 @@ d3.json("absyn.json", function(error, data) {
                         "children": [processNode(input.token, n)],
                         "parent": p,
                         "_origParent": p,
-                        "myid": i++
+                        "myid": idCount,
+                        "id": idCount++
                     };
                 }
             case "string":
-                var n = input.exp + " " + i;
+                var n = input.exp + " " + idCount;
                 return {
                     "name": n,
                     "children": [processNode(input.token, n)],
                     "parent": p,
                     "_origParent": p,
-                    "myid": i++
+                    "myid": idCount,
+                    "id": idCount++
                 };
             case "undefined":
                 return {
-                    "name": input + " " + i,
+                    "name": input + " " + idCount,
                     "parent": p,
                     "_origParent": p,
-                    "myid": i++
+                    "myid": idCount,
+                    "id": idCount++
                 };
             default:
                 console.log("ERROR");
@@ -134,7 +137,7 @@ d3.json("absyn.json", function(error, data) {
 
         if (obj instanceof Object) {
             copy = {};
-            ["children", "x0", "y0", "name"].forEach(function(d) {
+            ["children", "id", "myid", "x0", "y0", "name"].forEach(function(d) {
                 if (obj.hasOwnProperty(d)) {
                     copy[d] = Clone(obj[d]);
                 }
@@ -185,7 +188,7 @@ d3.json("absyn.json", function(error, data) {
 
         // Update the nodes…
         var node = svg.selectAll("g.node")
-            .data(nodes, function(d) { return d.id || (d.id = ++i); });
+            .data(nodes, function(d) { return d.id || d.myid || (d.id = idCount++); });
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
@@ -203,8 +206,10 @@ d3.json("absyn.json", function(error, data) {
             .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
             .text(function(d) {
                 a = d.name.split(' ');
-                a.pop();
-                return d.name;//a.join(' ');
+                if (a.length > 1) {
+                    a.pop();
+                }
+                return a.join(' ');
             })
             .style("fill-opacity", 1e-6);
 
