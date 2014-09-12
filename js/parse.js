@@ -89,6 +89,7 @@ d3.json("absyn.json", function(error, data) {
         leaves[i].parent = "program";
         leaves[i].__depth = leaves[i].depth;
         leaves[i].__children = leaves[i].children;
+        leaves[i].leaf = true;
         rootNode.children.push(leaves[i]);
     }
 
@@ -173,6 +174,32 @@ d3.json("absyn.json", function(error, data) {
         }
     }
     walkTree(absyn, 0);
+    i = i + 2;
+    setTimeout(function() {
+        function deleteLeaves(absyn) {
+            var childs = absyn.children;
+            if (childs) {
+                console.log(childs);
+                var l = childs.length;
+                var toRemove = [];
+                for (var i = 0; i < l; i++) {
+                    if (childs[i].children) {
+                        deleteLeaves(childs[i]);
+                    } else {
+                        toRemove.push({i: i, d: childs[i]});
+                    }
+                }
+                toRemove.reverse();
+                toRemove.forEach(function(d) {
+                    delete childs[i];
+                    childs.splice(d.i, 1);
+                });
+            }
+        }
+        deleteLeaves(absyn);
+        console.log(absyn);
+        update(absyn);
+    }, ++i * duration)
 
     var newX0;
     function update(source) {
@@ -182,8 +209,6 @@ d3.json("absyn.json", function(error, data) {
         var rootNode = nodes.filter(function(d) {
             return d.id === 0;
         })[0];
-        console.log(rootNode.x);
-        source.x0 = rootNode.x;
 
         // Normalize for fixed-depth.
         nodes.forEach(function(d) { d.y = d.depth * 180; });
