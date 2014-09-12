@@ -283,67 +283,72 @@
         },
         "IN",
         {
-            "exp": "MethodExp",
+            "exp": "SeqExp",
             "token": [
                 {
-                    "exp": "SimpleVar",
-                    "token": "ID you"
-                },
-                "DOT",
-                "ID init",
-                "LPAREN",
-                "RPAREN"
-            ]
-        },
-        "SEMICOLON",
-        {
-            "exp": "CallExp",
-            "token": [
-                "ID print",
-                "LPAREN",
-                {
-                    "exp": "StringExp",
-                    "token": "STRING "
-                },
-                "RPAREN"
-            ]
-        },
-        "SEMICOLON",
-        {
-            "exp": "CallExp",
-            "token": [
-                "ID print",
-                "LPAREN",
-                {
-                    "exp": "VarExp",
+                    "exp": "MethodExp",
                     "token": [
                         {
-                            "exp": "FieldVar",
-                            "token": [
-                                {
-                                    "exp": "SimpleVar",
-                                    "token": "ID you"
-                                },
-                                "DOT",
-                                "ID name"
-                            ]
-                        }
+                            "exp": "SimpleVar",
+                            "token": "ID you"
+                        },
+                        "DOT",
+                        "ID init",
+                        "LPAREN",
+                        "RPAREN"
                     ]
                 },
-                "RPAREN"
-            ]
-        },
-        "SEMICOLON",
-        {
-            "exp": "CallExp",
-            "token": [
-                "ID print",
-                "LPAREN",
+                "SEMICOLON",
                 {
-                    "exp": "StringExp",
-                    "token": "STRING "
+                    "exp": "CallExp",
+                    "token": [
+                        "ID print",
+                        "LPAREN",
+                        {
+                            "exp": "StringExp",
+                            "token": "STRING "
+                        },
+                        "RPAREN"
+                    ]
                 },
-                "RPAREN"
+                "SEMICOLON",
+                {
+                    "exp": "CallExp",
+                    "token": [
+                        "ID print",
+                        "LPAREN",
+                        {
+                            "exp": "VarExp",
+                            "token": [
+                                {
+                                    "exp": "FieldVar",
+                                    "token": [
+                                        {
+                                            "exp": "SimpleVar",
+                                            "token": "ID you"
+                                        },
+                                        "DOT",
+                                        "ID name"
+                                    ]
+                                }
+                            ]
+                        },
+                        "RPAREN"
+                    ]
+                },
+                "SEMICOLON",
+                {
+                    "exp": "CallExp",
+                    "token": [
+                        "ID print",
+                        "LPAREN",
+                        {
+                            "exp": "StringExp",
+                            "token": "STRING "
+                        },
+                        "RPAREN"
+                    ]
+                }
             ]
         },
         "END"
