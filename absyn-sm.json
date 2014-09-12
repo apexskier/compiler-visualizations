@@ -1,0 +1,42 @@
+{
+    "exp": "WhileExp",
+    "token": [
+        "WHILE",
+        {
+            "exp": "OpExp",
+            "token": [
+                {
+                    "exp": "VarExp",
+                    "token": {
+                        "exp": "SimpleVar",
+                        "token": "ID buffer"
+                    }
+                },
+                "EQ",
+                {
+                    "exp": "StringExp",
+                    "token": "STRING "
+                }
+            ]
+        },
+        "DO",
+        {
+            "exp": "AssignExp",
+            "token": [
+                {
+                    "exp": "SimpleVar",
+                    "token": "ID buffer"
+                },
+                "ASSIGN",
+                {
+                    "exp": "CallExp",
+                    "token": [
+                        "ID getchar",
+                        "LPAREN",
+                        "RPAREN"
+                    ]
+                }
+            ]
+        }
+    ]
+}

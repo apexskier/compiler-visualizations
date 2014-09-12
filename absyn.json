@@ -1,42 +1,351 @@
 {
-    "exp": "WhileExp",
+    "exp": "LetExp",
     "token": [
-        "WHILE",
+        "LET",
         {
-            "exp": "OpExp",
+            "exp": "FunctionDec",
             "token": [
-                {
-                    "exp": "VarExp",
-                    "token": {
-                        "exp": "SimpleVar",
-                        "token": "ID buffer"
-                    }
-                },
+                "FUNCTION",
+                "ID readline",
+                "LPAREN",
+                "RPAREN",
+                "COLON",
+                "ID string",
                 "EQ",
                 {
-                    "exp": "StringExp",
-                    "token": "STRING "
-                }
-            ]
-        },
-        "DO",
-        {
-            "exp": "AssignExp",
-            "token": [
-                {
-                    "exp": "SimpleVar",
-                    "token": "ID buffer"
-                },
-                "ASSIGN",
-                {
-                    "exp": "CallExp",
+                    "exp": "LetExp",
                     "token": [
-                        "ID getchar",
-                        "LPAREN",
-                        "RPAREN"
+                        "LET",
+                        {
+                            "exp": "VarDec",
+                            "token": [
+                                "VAR",
+                                "ID ret",
+                                "COLON",
+                                "ID string",
+                                "ASSIGN",
+                                {
+                                    "exp": "StringExp",
+                                    "token": "STRING "
+                                }
+                            ]
+                        },
+                        {
+                            "exp": "VarDec",
+                            "token": [
+                                "VAR",
+                                "ID buffer",
+                                "ASSIGN",
+                                {
+                                    "exp": "CallExp",
+                                    "token": [
+                                        "ID getchar",
+                                        "LPAREN",
+                                        "RPAREN"
+                                    ]
+                                }
+                            ]
+                        },
+                        "IN",
+                        {
+                            "exp": "SeqExp",
+                            "token": [
+                                "LPAREN",
+                                {
+                                    "exp": "WhileExp",
+                                    "token": [
+                                        "WHILE",
+                                        {
+                                            "exp": "OpExp",
+                                            "token": [
+                                                {
+                                                    "exp": "VarExp",
+                                                    "token": {
+                                                        "exp": "SimpleVar",
+                                                        "token": "ID buffer"
+                                                    }
+                                                },
+                                                "EQ",
+                                                {
+                                                    "exp": "StringExp",
+                                                    "token": "STRING "
+                                                }
+                                            ]
+                                        },
+                                        "DO",
+                                        {
+                                            "exp": "AssignExp",
+                                            "token": [
+                                                {
+                                                    "exp": "SimpleVar",
+                                                    "token": "ID buffer"
+                                                },
+                                                "ASSIGN",
+                                                {
+                                                    "exp": "CallExp",
+                                                    "token": [
+                                                        "ID getchar",
+                                                        "LPAREN",
+                                                        "RPAREN"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "SEMICOLON",
+                                {
+                                    "exp": "WhileExp",
+                                    "token": [
+                                        "WHILE",
+                                        {
+                                            "exp": "OpExp",
+                                            "token": [
+                                                {
+                                                    "exp": "VarExp",
+                                                    "token": {
+                                                        "exp": "SimpleVar",
+                                                        "token": "ID buffer"
+                                                    }
+                                                },
+                                                "NEQ",
+                                                {
+                                                    "exp": "StringExp",
+                                                    "token": "STRING "
+                                                }
+                                            ]
+                                        },
+                                        "DO",
+                                        {
+                                            "exp": "SeqExp",
+                                            "token": [
+                                                "LPAREN",
+                                                {
+                                                    "exp": "AssignExp",
+                                                    "token": [
+                                                        {
+                                                            "exp": "SimpleVar",
+                                                            "token": "ID ret"
+                                                        },
+                                                        "ASSIGN",
+                                                        {
+                                                            "exp": "CallExp",
+                                                            "token": [
+                                                                "ID concat",
+                                                                "LPAREN",
+                                                                {
+                                                                    "exp": "VarExp",
+                                                                    "token": {
+                                                                        "exp": "SimpleVar",
+                                                                        "token": "ID ret"
+                                                                    }
+                                                                },
+                                                                "COMMA",
+                                                                {
+                                                                    "exp": "VarExp",
+                                                                    "token": {
+                                                                        "exp": "SimpleVar",
+                                                                        "token": "ID buffer"
+                                                                    }
+                                                                },
+                                                                "RPAREN"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "SEMICOLON",
+                                                {
+                                                    "exp": "AssignExp",
+                                                    "token": [
+                                                        {
+                                                            "exp": "SimpleVar",
+                                                            "token": "ID buffer"
+                                                        },
+                                                        "ASSIGN",
+                                                        {
+                                                            "exp": "CallExp",
+                                                            "token": [
+                                                                "ID getchar",
+                                                                "LPAREN",
+                                                                "RPAREN"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "RPAREN"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "SEMICOLON",
+                                {
+                                    "exp": "VarExp",
+                                    "token": {
+                                        "exp": "SimpleVar",
+                                        "token": "ID ret"
+                                    }
+                                },
+                                "RPAREN"
+                            ]
+                        },
+                        "END"
                     ]
                 }
             ]
-        }
+        },
+        {
+            "exp": "ClassDec",
+            "token": [
+                "CLASS",
+                "ID Person",
+                "EXTENDS",
+                "ID Object",
+                "LBRACE",
+                {
+                    "exp": "VarDec",
+                    "token": [
+                        "VAR",
+                        "ID name",
+                        "COLON",
+                        "ID string",
+                        "ASSIGN",
+                        {
+                            "exp": "StringExp",
+                            "token": "STRING "
+                        }
+                    ]
+                },
+                {
+                    "exp": "FunctionDec",
+                    "token": [
+                        "METHOD",
+                        "ID init",
+                        "LPAREN",
+                        "RPAREN",
+                        "EQ",
+                        {
+                            "exp": "SeqExp",
+                            "token": [
+                                "LPAREN",
+                                {
+                                    "exp": "CallExp",
+                                    "token": [
+                                        "ID print",
+                                        "LPAREN",
+                                        {
+                                            "exp": "StringExp",
+                                            "token": "STRING "
+                                        },
+                                        "RPAREN"
+                                    ]
+                                },
+                                "SEMICOLON",
+                                {
+                                    "exp": "AssignExp",
+                                    "token": [
+                                        {
+                                            "exp": "SimpleVar",
+                                            "token": "ID name"
+                                        },
+                                        "ASSIGN",
+                                        {
+                                            "exp": "CallExp",
+                                            "token": [
+                                                "ID readline",
+                                                "LPAREN",
+                                                "RPAREN"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "RPAREN"
+                            ]
+                        }
+                    ]
+                },
+                "RBRACE"
+            ]
+        },
+        {
+            "exp": "VarDec",
+            "token": [
+                "VAR",
+                "ID you",
+                "ASSIGN",
+                {
+                    "exp": "NewExp",
+                    "token": [
+                        "NEW",
+                        "ID Person"
+                    ]
+                }
+            ]
+        },
+        "IN",
+        {
+            "exp": "MethodExp",
+            "token": [
+                {
+                    "exp": "SimpleVar",
+                    "token": "ID you"
+                },
+                "DOT",
+                "ID init",
+                "LPAREN",
+                "RPAREN"
+            ]
+        },
+        "SEMICOLON",
+        {
+            "exp": "CallExp",
+            "token": [
+                "ID print",
+                "LPAREN",
+                {
+                    "exp": "StringExp",
+                    "token": "STRING "
+                },
+                "RPAREN"
+            ]
+        },
+        "SEMICOLON",
+        {
+            "exp": "CallExp",
+            "token": [
+                "ID print",
+                "LPAREN",
+                {
+                    "exp": "VarExp",
+                    "token": [
+                        {
+                            "exp": "FieldVar",
+                            "token": [
+                                {
+                                    "exp": "SimpleVar",
+                                    "token": "ID you"
+                                },
+                                "DOT",
+                                "ID name"
+                            ]
+                        }
+                    ]
+                },
+                "RPAREN"
+            ]
+        },
+        "SEMICOLON",
+        {
+            "exp": "CallExp",
+            "token": [
+                "ID print",
+                "LPAREN",
+                {
+                    "exp": "StringExp",
+                    "token": "STRING "
+                },
+                "RPAREN"
+            ]
+        },
+        "END"
     ]
 }
