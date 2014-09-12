@@ -1,6 +1,7 @@
 var margin = {top: 20, right: 120, bottom: 20, left: 120},
     width = 1600,
-    height = 800 - margin.top - margin.bottom;
+    height = 800 - margin.top - margin.bottom,
+    duration = 1000;
 
 var idCount = 0,
     duration = 750;
@@ -28,7 +29,6 @@ d3.json("absyn.json", function(error, data) {
                         "children": input.token.map(function(v) { return processNode(v, n) }),
                         "parent": p,
                         "_origParent": p,
-                        "myid": idCount,
                         "id": idCount++
                     }
                 } else {
@@ -37,7 +37,6 @@ d3.json("absyn.json", function(error, data) {
                         "children": [processNode(input.token, n)],
                         "parent": p,
                         "_origParent": p,
-                        "myid": idCount,
                         "id": idCount++
                     };
                 }
@@ -48,7 +47,6 @@ d3.json("absyn.json", function(error, data) {
                     "children": [processNode(input.token, n)],
                     "parent": p,
                     "_origParent": p,
-                    "myid": idCount,
                     "id": idCount++
                 };
             case "undefined":
@@ -56,7 +54,6 @@ d3.json("absyn.json", function(error, data) {
                     "name": input + " " + idCount,
                     "parent": p,
                     "_origParent": p,
-                    "myid": idCount,
                     "id": idCount++
                 };
             default:
@@ -137,7 +134,7 @@ d3.json("absyn.json", function(error, data) {
 
         if (obj instanceof Object) {
             copy = {};
-            ["children", "id", "myid", "x0", "y0", "name"].forEach(function(d) {
+            ["children", "id", "x0", "y0", "name"].forEach(function(d) {
                 if (obj.hasOwnProperty(d)) {
                     copy[d] = Clone(obj[d]);
                 }
@@ -169,11 +166,9 @@ d3.json("absyn.json", function(error, data) {
             });
             // insert this
             rootNode.children.splice(idxs[0], idxs.length, root);
-
             var t = Clone(rootNode);
-            t.children[idxs[0]].parent = rootNode.name;
             i++;
-            setTimeout(function() { update(t); }, i * 2000);
+            setTimeout(function() { update(t); }, i * duration);
         }
     }
     walkTree(absyn, 0);
@@ -188,7 +183,7 @@ d3.json("absyn.json", function(error, data) {
 
         // Update the nodes…
         var node = svg.selectAll("g.node")
-            .data(nodes, function(d) { return d.id || d.myid || (d.id = idCount++); });
+            .data(nodes, function(d) { return d.id; });
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
