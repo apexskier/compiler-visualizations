@@ -28,6 +28,7 @@ d3.json("absyn.json", function(error, data) {
                         "name": n,
                         "children": input.token.map(function(v) { return processNode(v, n) }),
                         "parent": p,
+                        "status": "initial",
                         "_origParent": p,
                         "id": idCount++
                     }
@@ -36,6 +37,7 @@ d3.json("absyn.json", function(error, data) {
                         "name": n,
                         "children": [processNode(input.token, n)],
                         "parent": p,
+                        "status": "initial",
                         "_origParent": p,
                         "id": idCount++
                     };
@@ -46,6 +48,7 @@ d3.json("absyn.json", function(error, data) {
                     "name": n,
                     "children": [processNode(input.token, n)],
                     "parent": p,
+                    "status": "initial",
                     "_origParent": p,
                     "id": idCount++
                 };
@@ -53,6 +56,7 @@ d3.json("absyn.json", function(error, data) {
                 return {
                     "name": input + " " + idCount,
                     "parent": p,
+                    "status": "initial",
                     "_origParent": p,
                     "id": idCount++
                 };
@@ -136,7 +140,7 @@ d3.json("absyn.json", function(error, data) {
 
         if (obj instanceof Object) {
             copy = {};
-            ["children", "id", "x0", "y0", "name"].forEach(function(d) {
+            ["children", "id", "status", "active", "x0", "y0", "name"].forEach(function(d) {
                 if (obj.hasOwnProperty(d)) {
                     copy[d] = Clone(obj[d]);
                 }
@@ -148,19 +152,29 @@ d3.json("absyn.json", function(error, data) {
         }
     }
 
+    var steps = [];
+
     var i = 1;
+    var j = 1;
     function walkTree(root) {
         if (root.children) {
             root.children.forEach(function(d) {
                 walkTree(d);
             });
+            root.status = "queued";
             // Add the root into the tree!
-            var idx;
             var idxs = [];
+            rootNode.children.forEach(function(d) {
+                if (d._origParent == root.name) {
+                    d.status = "selected";
+                }
+            });
+            steps.push(Clone(rootNode));
             root.children = [];
             rootNode.children.forEach(function(d) {
                 if (d._origParent == root.name) {
                     d.parent = d._origParent;
+                    d.status = "initial";
                     // remove from root's children
                     idxs.push(rootNode.children.indexOf(d));
                     root.children.push(d);
@@ -168,38 +182,66 @@ d3.json("absyn.json", function(error, data) {
             });
             // insert this
             rootNode.children.splice(idxs[0], idxs.length, root);
-            var t = Clone(rootNode);
-            i++;
-            setTimeout(function() { update(t); }, i * duration);
+        } else {
+            root.status = "queued";
         }
+        steps.push(Clone(rootNode));
     }
     walkTree(absyn, 0);
     i = i + 2;
-    setTimeout(function() {
-        function deleteLeaves(absyn) {
-            var childs = absyn.children;
-            if (childs) {
-                console.log(childs);
-                var l = childs.length;
-                var toRemove = [];
-                for (var i = 0; i < l; i++) {
-                    if (childs[i].children) {
-                        deleteLeaves(childs[i]);
-                    } else {
-                        toRemove.push({i: i, d: childs[i]});
-                    }
+    function deleteLeaves(absyn) {
+        var childs = absyn.children;
+        if (childs) {
+            var l = childs.length;
+            var toRemove = [];
+            for (var i = 0; i < l; i++) {
+                if (childs[i].children) {
+                    deleteLeaves(childs[i]);
+                } else {
+                    toRemove.push({i: i, d: childs[i]});
                 }
-                toRemove.reverse();
-                toRemove.forEach(function(d) {
-                    delete childs[i];
-                    childs.splice(d.i, 1);
-                });
             }
+            toRemove.reverse();
+            toRemove.forEach(function(d) {
+                delete childs[i];
+                childs.splice(d.i, 1);
+            });
         }
-        deleteLeaves(absyn);
-        console.log(absyn);
-        update(absyn);
-    }, ++i * duration)
+    }
+    deleteLeaves(absyn);
+    steps.push(Clone(absyn));
+
+    var currentStep = 0;
+    d3.select("#steps")
+        .selectAll('li').data(steps).enter()
+            .append('li').text(function(d, i) { return i; })
+            .on('click', function(d, i) {
+                clearTimeout(timer);
+                update_(i);
+            });
+    d3.select("#prev").on('click', function() {
+        update_(--currentStep);
+    });
+    d3.select("#next").on('click', function() {
+        update_(++currentStep);
+    });
+    var timer;
+    steps.forEach(function(d, i) {
+        timer = setTimeout(function() { update_(i); }, i * duration);
+    });
+    function update_(i) {
+        d3.select('#steps').selectAll('li').transition()
+            .duration(duration)
+            .style('font-weight', function(d, j) {
+                if (i == j) {
+                    return "bold";
+                } else {
+                    return "normal";
+                }
+            });
+        currentStep = i;
+        update(steps[i]);
+    }
 
     var newX0;
     function update(source) {
@@ -211,7 +253,7 @@ d3.json("absyn.json", function(error, data) {
         })[0];
 
         // Normalize for fixed-depth.
-        nodes.forEach(function(d) { d.y = d.depth * 180; });
+        nodes.forEach(function(d) { d.y = d.depth * 120; });
 
         // Update the nodes…
         var node = svg.selectAll("g.node")
@@ -248,7 +290,16 @@ d3.json("absyn.json", function(error, data) {
 
         nodeUpdate.select("circle")
             .attr("r", 4.5)
-            .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+            .style("fill", function(d) {
+                switch (d.status) {
+                    case "selected":
+                        return "red";
+                    case "queued":
+                        return "yellow";
+                    default:
+                        return d._children ? "lightsteelblue" : "#fff";
+                };
+            });
 
         nodeUpdate.select("text")
             .style("fill-opacity", 1);

@@ -22,12 +22,25 @@
             stroke: #ccc;
             stroke-width: 1.5px;
         }
+
+        #steps {
+            padding: 0;
+        }
+        #steps li {
+            padding-left: 0;
+            padding-right: 10px;
+            display: inline-block;
+            list-style: none;
+        }
     </style>
 </html>
 <body>
     <div class="container">
         <h1>Compiler Visualizations</h1>
         <h2>Parser</h2>
+        <ul id="steps"></ul>
+        <button id="prev" type="button">Previous</button>
+        <button id="next" type="button">Next</button>
         <div class="box" id="parsetree"></div>
     </div>
 
