@@ -114,8 +114,6 @@ d3.json("absyn.json", function(error, data) {
         }
     }
 
-    var t = 0;
-    update(rootNode);
     /*
      * The Plan:
      * Walk the full tree along ascending ids (that I set). Keep track of
@@ -125,7 +123,6 @@ d3.json("absyn.json", function(error, data) {
      * When a node is reached with a different parent, insert the parent of the
      * set into the working tree, call update, and return the parent.
      */
-
     function Clone(obj) {
         var copy;
         if (obj == null || "object" != typeof obj) return obj;
@@ -152,10 +149,8 @@ d3.json("absyn.json", function(error, data) {
         }
     }
 
-    var steps = [];
+    var steps = [Clone(rootNode)];
 
-    var i = 1;
-    var j = 1;
     function walkTree(root) {
         if (root.children) {
             root.children.forEach(function(d) {
@@ -188,7 +183,7 @@ d3.json("absyn.json", function(error, data) {
         steps.push(Clone(rootNode));
     }
     walkTree(absyn, 0);
-    i = i + 2;
+
     function deleteLeaves(absyn) {
         var childs = absyn.children;
         if (childs) {
@@ -203,13 +198,22 @@ d3.json("absyn.json", function(error, data) {
             }
             toRemove.reverse();
             toRemove.forEach(function(d) {
-                delete childs[i];
+                delete childs[d.i];
                 childs.splice(d.i, 1);
             });
         }
     }
     deleteLeaves(absyn);
     steps.push(Clone(absyn));
+
+    var progress = d3.select("#progress")
+        .attr('max', steps.length - 1)
+        .attr('value', 0)
+        .on('click', function(e) {
+            var x = d3.mouse(this)[0];
+            var el = d3.select(this);
+            update_(parseInt((x / el.node().offsetWidth) * el.attr('max')));
+        });
 
     var currentStep = 0;
     d3.select("#steps")
@@ -220,10 +224,10 @@ d3.json("absyn.json", function(error, data) {
                 update_(i);
             });
     d3.select("#prev").on('click', function() {
-        update_(--currentStep);
+        update_(currentStep == 0 ? currentStep : --currentStep);
     });
     d3.select("#next").on('click', function() {
-        update_(++currentStep);
+        update_(currentStep == steps.length - 1 ? currentStep : ++currentStep);
     });
     var timer;
     steps.forEach(function(d, i) {
@@ -240,6 +244,7 @@ d3.json("absyn.json", function(error, data) {
                 }
             });
         currentStep = i;
+        progress.attr('value', i);
         update(steps[i]);
     }
 
