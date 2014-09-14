@@ -1,12 +1,13 @@
 var margin = {top: 20, right: 120, bottom: 20, left: 120},
     width = 1600,
     height = 800 - margin.top - margin.bottom,
-    duration = 1000;
-
-var idCount = 1,
-    duration = 500,
+    $speed = d3.select("#speed"),
+    duration = $speed.attr('value'),
+    idCount = 1,
     timer,
     currentStep = 0;
+
+$speed.on('change', function() { duration = this.value; });
 
 var tree = d3.layout.tree()
     .size([height, width]);
