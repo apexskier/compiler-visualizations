@@ -32,6 +32,10 @@
             display: inline-block;
             list-style: none;
         }
+
+        #progress {
+            width: 100%;
+        }
     </style>
 </html>
 <body>
@@ -39,10 +43,11 @@
         <h1>Compiler Visualizations</h1>
         <h2>Parser</h2>
         <ul id="steps"></ul>
-        <ul id="steps"></ul>
         <progress id="progress"></progress>
+        <button id="play" type="button">Play</button>
         <button id="prev" type="button">Previous</button>
         <button id="next" type="button">Next</button>
+        <button id="restart" type="button">Restart</button>
         <div class="box" id="parsetree"></div>
     </div>
 
