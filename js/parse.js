@@ -47,7 +47,7 @@ function Clone(obj) {
     }
 }
 
-d3.json("absyn.json", function(error, data) {
+d3.json("echo.absyn.json", function(error, data) {
     var rootNode = {
         name: "program",
         id: 0,
@@ -57,51 +57,62 @@ d3.json("absyn.json", function(error, data) {
         y0: 0
     }
     var absyn = (function processNode(input, p) {
-            switch (typeof input.token) {
-                case "object":
-                    var n = input.exp + " " + idCount;
-                    if (input.token instanceof Array) {
-                        return {
-                            "name": n,
-                            "children": input.token.map(function(v) { return processNode(v, n) }),
-                            "parent": p,
-                            "status": "initial",
-                            "_parent": p,
-                            "id": idCount++
-                        }
-                    } else {
-                        return {
-                            "name": n,
-                            "children": [processNode(input.token, n)],
-                            "parent": p,
-                            "status": "initial",
-                            "_parent": p,
-                            "id": idCount++
-                        };
-                    }
-                case "string":
-                    var n = input.exp + " " + idCount;
+        if (input == null) {
+            return null;
+        }
+        switch (typeof input.token) {
+            case "object":
+                var n = input.exp + " " + idCount;
+                if (input.token instanceof Array) {
+                    var children = input.token.map(function(v) { return processNode(v, n) }),
+                    children = children.filter(function(v) {
+                        return !!v;
+                    });
                     return {
                         "name": n,
-                        "children": [processNode(input.token, n)],
+                        "children": children,
                         "parent": p,
                         "status": "initial",
                         "_parent": p,
                         "id": idCount++
-                    };
-                case "undefined":
+                    }
+                } else {
+                    var child = processNode(input.token, n);
+                    var children = child ? [child] : null;
                     return {
-                        "name": input + " " + idCount,
+                        "name": n,
+                        "children": children,
                         "parent": p,
                         "status": "initial",
                         "_parent": p,
                         "id": idCount++
                     };
-                default:
-                    console.log("ERROR");
-                    console.log(input);
-            }
-        })(data, rootNode.name);
+                }
+            case "string":
+                var n = input.exp + " " + idCount;
+                var child = processNode(input.token, n);
+                var children = child ? [child] : null;
+                return {
+                    "name": n,
+                    "children": children,
+                    "parent": p,
+                    "status": "initial",
+                    "_parent": p,
+                    "id": idCount++
+                };
+            case "undefined":
+                return {
+                    "name": input + " " + idCount,
+                    "parent": p,
+                    "status": "initial",
+                    "_parent": p,
+                    "id": idCount++
+                };
+            default:
+                console.log("ERROR");
+                console.log(input);
+        }
+    })(data, rootNode.name);
     var leaves = (function getLeaves(d){
             if (d.children) {
                 tempLeaves = new Array();
