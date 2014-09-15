@@ -1,141 +1,93 @@
 {
-    "exp": "ctlexp",
-    "token": [
-        "LET",
-        {
-            "exp": "decs",
-            "token": [
-                {
-                    "exp": "vardec",
-                    "token": [
-                        "VAR",
-                        "ID \"input\"",
-                        "ASSIGN",
-                        {
-                            "exp": "exp",
-                            "token": {
-                                "exp": "funcall",
-                                "token": [
-                                    "ID \"getchar\"",
-                                    "LPAREN",
-                                    {
-                                        "exp": "params",
-                                        "token": null
-                                    },
-                                    "RPAREN"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "exp": "vardec",
-                    "token": [
-                        "VAR",
-                        "ID \"result\"",
-                        "ASSIGN",
-                        {
-                            "exp": "exp",
-                            "token": "STRING \"\""
-                        }
-                    ]
-                }
-            ]
-        },
-        "IN",
-        {
-            "exp": "exps",
-            "token": [
-                {
-                    "exp": "exp",
-                    "token": {
-                        "exp": "ctlexp",
+    "exp": "exp",
+    "token": {
+        "exp": "ctlexp",
+        "token": [
+            "LET",
+            {
+                "exp": "decs",
+                "token": [
+                    {
+                        "exp": "vardec",
                         "token": [
-                            "WHILE",
+                            "VAR",
+                            "ID \"input\"",
+                            "ASSIGN",
                             {
                                 "exp": "exp",
                                 "token": {
-                                    "exp": "opexp",
+                                    "exp": "funcall",
                                     "token": [
+                                        "ID \"getchar\"",
+                                        "LPAREN",
                                         {
-                                            "exp": "exp",
-                                            "token": {
-                                                "exp": "lvalue",
-                                                "token": "ID \"input\""
-                                            }
+                                            "exp": "params",
+                                            "token": null
                                         },
-                                        "NEQ",
-                                        {
-                                            "exp": "exp",
-                                            "token": "STRING \"\\n\""
-                                        }
+                                        "RPAREN"
                                     ]
                                 }
-                            },
-                            "DO",
+                            }
+                        ]
+                    },
+                    {
+                        "exp": "vardec",
+                        "token": [
+                            "VAR",
+                            "ID \"result\"",
+                            "ASSIGN",
                             {
                                 "exp": "exp",
-                                "token": [
-                                    "LPAREN",
-                                    {
-                                        "exp": "exps",
+                                "token": "STRING \"\""
+                            }
+                        ]
+                    }
+                ]
+            },
+            "IN",
+            {
+                "exp": "exps",
+                "token": [
+                    {
+                        "exp": "exp",
+                        "token": {
+                            "exp": "ctlexp",
+                            "token": [
+                                "WHILE",
+                                {
+                                    "exp": "exp",
+                                    "token": {
+                                        "exp": "opexp",
                                         "token": [
                                             {
                                                 "exp": "exp",
-                                                "token": [
-                                                    {
-                                                        "exp": "lvalue",
-                                                        "token": "ID \"result\""
-                                                    },
-                                                    "ASSIGN",
-                                                    {
-                                                        "exp": "exp",
-                                                        "token": {
-                                                            "exp": "funcall",
-                                                            "token": [
-                                                                "ID \"concat\"",
-                                                                "LPAREN",
-                                                                {
-                                                                    "exp": "params",
-                                                                    "token": [
-                                                                        {
-                                                                            "exp": "param",
-                                                                            "token": {
-                                                                                "exp": "param",
-                                                                                "token": {
-                                                                                    "exp": "lvalue",
-                                                                                    "token": "ID \"result\""
-                                                                                }
-                                                                            }
-                                                                        },
-                                                                        "COMMA",
-                                                                        {
-                                                                            "exp": "param",
-                                                                            "token": {
-                                                                                "exp": "param",
-                                                                                "token": {
-                                                                                    "exp": "lvalue",
-                                                                                    "token": "ID \"input\""
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    ]
-                                                                },
-                                                                "RPAREN"
-                                                            ]
-                                                        }
-                                                    }
-                                                ]
-                                            },
-                                            "SEMICOLON",
-                                            {
-                                                "exp": "exps",
                                                 "token": {
+                                                    "exp": "lvalue",
+                                                    "token": "ID \"input\""
+                                                }
+                                            },
+                                            "NEQ",
+                                            {
+                                                "exp": "exp",
+                                                "token": "STRING \"\\n\""
+                                            }
+                                        ]
+                                    }
+                                },
+                                "DO",
+                                {
+                                    "exp": "exp",
+                                    "token": [
+                                        "LPAREN",
+                                        {
+                                            "exp": "exps",
+                                            "token": [
+                                                {
                                                     "exp": "exp",
                                                     "token": [
                                                         {
                                                             "exp": "lvalue",
-                                                            "token": "ID \"input\""
+                                                            "token": "ID \"result\""
                                                         },
                                                         "ASSIGN",
                                                         {
@@ -147,77 +99,122 @@
                                                                     "LPAREN",
                                                                     {
                                                                         "exp": "params",
-                                                                        "token": null
+                                                                        "token": [
+                                                                            {
+                                                                                "exp": "param",
+                                                                                "token": {
+                                                                                    "exp": "lvalue",
+                                                                                    "token": "ID \"result\""
+                                                                                }
+                                                                            },
+                                                                            "COMMA",
+                                                                            {
+                                                                                "exp": "params",
+                                                                                "token": {
+                                                                                    "exp": "param",
+                                                                                    "token": {
+                                                                                        "exp": "lvalue",
+                                                                                        "token": "ID \"input\""
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        ]
                                                                     },
                                                                     "RPAREN"
                                                                 ]
                                                             }
                                                         }
                                                     ]
+                                                },
+                                                "SEMICOLON",
+                                                {
+                                                    "exp": "exps",
+                                                    "token": {
+                                                        "exp": "exp",
+                                                        "token": [
+                                                            {
+                                                                "exp": "lvalue",
+                                                                "token": "ID \"input\""
+                                                            },
+                                                            "ASSIGN",
+                                                            {
+                                                                "exp": "exp",
+                                                                "token": {
+                                                                    "exp": "funcall",
+                                                                    "token": [
+                                                                        "ID \"concat\"",
+                                                                        "LPAREN",
+                                                                        {
+                                                                            "exp": "params",
+                                                                            "token": null
+                                                                        },
+                                                                        "RPAREN"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "RPAREN"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "SEMICOLON",
+                    {
+                        "exp": "exps",
+                        "token": {
+                            "exp": "exp",
+                            "token": {
+                                "exp": "funcall",
+                                "token": [
+                                    "ID \"print\"",
+                                    "LPAREN",
+                                    {
+                                        "exp": "params",
+                                        "token": {
+                                            "exp": "param",
+                                            "token": {
+                                                "exp": "exp",
+                                                "token": {
+                                                    "exp": "funcall",
+                                                    "token": [
+                                                        "ID \"concat\"",
+                                                        "LPAREN",
+                                                        {
+                                                            "exp": "params",
+                                                            "token": [
+                                                                {
+                                                                    "exp": "exp",
+                                                                    "token": "STRING \"echo: \""
+                                                                },
+                                                                "COMMA",
+                                                                {
+                                                                    "exp": "param",
+                                                                    "token": {
+                                                                        "exp": "lvalue",
+                                                                        "token": "ID \"result\""
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        "RPAREN"
+                                                    ]
                                                 }
                                             }
-                                        ]
+                                        }
                                     },
                                     "RPAREN"
                                 ]
                             }
-                        ]
+                        }
                     }
-                },
-                "SEMICOLON",
-                {
-                    "exp": "exp",
-                    "token": {
-                        "exp": "funcall",
-                        "token": [
-                            "ID \"print\"",
-                            "LPAREN",
-                            {
-                                "exp": "params",
-                                "token": {
-                                    "exp": "param",
-                                    "token": {
-                                        "exp": "exp",
-                                        "token": {
-                                            "exp": "funcall",
-                                            "token": [
-                                                "ID \"concat\"",
-                                                "LPAREN",
-                                                {
-                                                    "exp": "params",
-                                                    "token": [
-                                                        {
-                                                            "exp": "param",
-                                                            "token": {
-                                                                "exp": "exp",
-                                                                "token": "STRING \"echo: \""
-                                                            }
-                                                        },
-                                                        "COMMA",
-                                                        {
-                                                            "exp": "param",
-                                                            "token": {
-                                                                "exp": "param",
-                                                                "token": {
-                                                                    "exp": "lvalue",
-                                                                    "token": "ID \"result\""
-                                                                }
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "RPAREN"
-                                            ]
-                                        }
-                                    }
-                                }
-                            },
-                            "RPAREN"
-                        ]
-                    }
-                }
-            ]
-        },
-        "END"
-    ]
+                ]
+            },
+            "END"
+        ]
+    }
 }
