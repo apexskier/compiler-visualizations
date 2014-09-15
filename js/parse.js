@@ -35,7 +35,7 @@ function Clone(obj) {
 
     if (obj instanceof Object) {
         copy = {};
-        ["children", "id", "status", "active", "x0", "y0", "name"].forEach(function(d) {
+        ["children", "id", "state", "active", "x0", "y0", "name"].forEach(function(d) {
             if (obj.hasOwnProperty(d)) {
                 copy[d] = Clone(obj[d]);
             }
@@ -72,7 +72,7 @@ d3.json("echo.absyn.json", function(error, data) {
                         "name": n,
                         "children": children,
                         "parent": p,
-                        "status": "initial",
+                        "state": "initial",
                         "_parent": p,
                         "id": idCount++
                     }
@@ -83,7 +83,7 @@ d3.json("echo.absyn.json", function(error, data) {
                         "name": n,
                         "children": children,
                         "parent": p,
-                        "status": "initial",
+                        "state": "initial",
                         "_parent": p,
                         "id": idCount++
                     };
@@ -96,7 +96,7 @@ d3.json("echo.absyn.json", function(error, data) {
                     "name": n,
                     "children": children,
                     "parent": p,
-                    "status": "initial",
+                    "state": "initial",
                     "_parent": p,
                     "id": idCount++
                 };
@@ -104,7 +104,7 @@ d3.json("echo.absyn.json", function(error, data) {
                 return {
                     "name": input + " " + idCount,
                     "parent": p,
-                    "status": "initial",
+                    "state": "initial",
                     "_parent": p,
                     "id": idCount++
                 };
@@ -133,6 +133,7 @@ d3.json("echo.absyn.json", function(error, data) {
     leaves.forEach(function(d, i) {
         d._parent = d.parent;
         d.parent = "program";
+        d.state = "leaf";
         rootNode.children.push(d);
     });
 
@@ -152,12 +153,12 @@ d3.json("echo.absyn.json", function(error, data) {
             root.children.forEach(function(d) {
                 walkTree(d);
             });
-            root.status = "queued";
+            root.state = "queued";
             // Add the root into the tree!
             var idxs = [];
             rootNode.children.forEach(function(d) {
                 if (d._parent == root.name) {
-                    d.status = "selected";
+                    d.state = "selected";
                 }
             });
             steps.push(Clone(rootNode));
@@ -165,7 +166,7 @@ d3.json("echo.absyn.json", function(error, data) {
             rootNode.children.forEach(function(d) {
                 if (d._parent == root.name) {
                     d.parent = d._parent;
-                    d.status = "initial";
+                    d.state = d.hasOwnProperty("children") ? "initial" : "leaf";
                     // remove from root's children
                     idxs.push(rootNode.children.indexOf(d));
                     root.children.push(d);
@@ -174,18 +175,18 @@ d3.json("echo.absyn.json", function(error, data) {
             // insert this
             rootNode.children.splice(idxs[0], idxs.length, root);
         } else if (root.hasOwnProperty("children") && root.children == null) {
-            root.status = "queued";
+            root.state = "queued";
             rootNode.children.splice(rootNode.children.filter(function(d, i) {
-                return d.status == "queued";
+                return d.state == "queued";
             }).length, 0, root);
         } else {
-            root.status = "queued";
+            root.state = "queued";
         }
         steps.push(Clone(rootNode));
     })(absyn);
 
-    absyn.status = "selected";
-    absyn.status = "initial";
+    absyn.state = "selected";
+    absyn.state = "initial";
     steps.push(Clone(rootNode));
 
     /*(function deleteLeaves(tree) {
@@ -307,11 +308,13 @@ d3.json("echo.absyn.json", function(error, data) {
         nodeUpdate.select("circle")
             .attr("r", 4.5)
             .style("fill", function(d) {
-                switch (d.status) {
+                switch (d.state) {
                     case "selected":
                         return "red";
                     case "queued":
                         return "yellow";
+                    case "leaf":
+                        return "steelblue";
                     default:
                         return d._children ? "lightsteelblue" : "#fff";
                 };
