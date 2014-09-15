@@ -6,23 +6,19 @@
         .node {
             cursor: pointer;
         }
-
         .node circle {
             fill: #fff;
             stroke: steelblue;
             stroke-width: 1.5px;
         }
-
         .node text {
             font: 10px sans-serif;
         }
-
         .link {
             fill: none;
             stroke: #ccc;
             stroke-width: 1.5px;
         }
-
         #steps {
             padding: 0;
         }
@@ -32,9 +28,11 @@
             display: inline-block;
             list-style: none;
         }
-
         #progress {
             width: 100%;
+        }
+        #tree {
+            overflow-x: scroll;
         }
     </style>
 </html>
@@ -50,6 +48,7 @@
         <button id="restart" type="button">Restart</button>
         <input type="number" value="500" step="50" min="50" id="speed">
         <div class="box" id="parsetree"></div>
+        <div id="tree"></div>
     </div>
 
 <script src="http://d3js.org/d3.v3.min.js"></script>

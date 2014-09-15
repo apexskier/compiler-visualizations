@@ -1,5 +1,5 @@
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 1600,
+var margin = {top: 20, right: 50, bottom: 20, left: 50},
+    width = 1820,
     height = 800 - margin.top - margin.bottom,
     $speed = d3.select("#speed"),
     duration = $speed.attr('value'),
@@ -15,7 +15,7 @@ var tree = d3.layout.tree()
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#tree").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -114,17 +114,21 @@ d3.json("echo.absyn.json", function(error, data) {
         }
     })(data, rootNode.name);
     var leaves = (function getLeaves(d){
-            if (d.children) {
-                tempLeaves = new Array();
-                var children = d.children;
-                for (var i = 0; i < children.length; i++) {
-                    tempLeaves = tempLeaves.concat(getLeaves(children[i]));
-                }
-                return tempLeaves;
-            } else {
-                return [d];
+        if (d.children) {
+            tempLeaves = new Array();
+            var children = d.children;
+            for (var i = 0; i < children.length; i++) {
+                tempLeaves = tempLeaves.concat(getLeaves(children[i]));
             }
-        })(absyn);
+            return tempLeaves;
+        } else {
+            if (!d.hasOwnProperty("children")) {
+                return [d];
+            } else {
+                return [];
+            }
+        }
+    })(absyn);
 
     leaves.forEach(function(d, i) {
         d._parent = d.parent;
@@ -169,13 +173,22 @@ d3.json("echo.absyn.json", function(error, data) {
             });
             // insert this
             rootNode.children.splice(idxs[0], idxs.length, root);
+        } else if (root.hasOwnProperty("children") && root.children == null) {
+            root.status = "queued";
+            rootNode.children.splice(rootNode.children.filter(function(d, i) {
+                return d.status == "queued";
+            }).length, 0, root);
         } else {
             root.status = "queued";
         }
         steps.push(Clone(rootNode));
     })(absyn);
 
-    (function deleteLeaves(tree) {
+    absyn.status = "selected";
+    absyn.status = "initial";
+    steps.push(Clone(rootNode));
+
+    /*(function deleteLeaves(tree) {
         var childs = tree.children;
         if (childs) {
             var l = childs.length;
@@ -194,7 +207,7 @@ d3.json("echo.absyn.json", function(error, data) {
             });
         }
     })(rootNode);
-    steps.push(Clone(rootNode));
+    steps.push(Clone(rootNode));*/
 
     function tick() {
         if (currentStep < +progress.attr('max')) {
