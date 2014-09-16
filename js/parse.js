@@ -60,11 +60,11 @@ d3.json("echo.absyn.json", function(error, data) {
         if (input == null) {
             return null;
         }
-        switch (typeof input.token) {
+        switch (typeof input.lhs) {
             case "object":
-                var n = input.exp + " " + idCount;
-                if (input.token instanceof Array) {
-                    var children = input.token.map(function(v) { return processNode(v, n) }),
+                var n = input.rhs + " " + idCount;
+                if (input.lhs instanceof Array) {
+                    var children = input.lhs.map(function(v) { return processNode(v, n) }),
                     children = children.filter(function(v) {
                         return !!v;
                     });
@@ -77,7 +77,7 @@ d3.json("echo.absyn.json", function(error, data) {
                         "id": idCount++
                     }
                 } else {
-                    var child = processNode(input.token, n);
+                    var child = processNode(input.lhs, n);
                     var children = child ? [child] : null;
                     return {
                         "name": n,
@@ -89,8 +89,8 @@ d3.json("echo.absyn.json", function(error, data) {
                     };
                 }
             case "string":
-                var n = input.exp + " " + idCount;
-                var child = processNode(input.token, n);
+                var n = input.rhs + " " + idCount;
+                var child = processNode(input.lhs, n);
                 var children = child ? [child] : null;
                 return {
                     "name": n,

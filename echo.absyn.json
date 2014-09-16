@@ -1,28 +1,28 @@
 {
-    "exp": "exp",
-    "token": {
-        "exp": "ctlexp",
-        "token": [
+    "rhs": "exp",
+    "lhs": {
+        "rhs": "ctlexp",
+        "lhs": [
             "LET",
             {
-                "exp": "decs",
-                "token": [
+                "rhs": "decs",
+                "lhs": [
                     {
-                        "exp": "vardec",
-                        "token": [
+                        "rhs": "vardec",
+                        "lhs": [
                             "VAR",
                             "ID \"input\"",
                             "ASSIGN",
                             {
-                                "exp": "exp",
-                                "token": {
-                                    "exp": "funcall",
-                                    "token": [
+                                "rhs": "exp",
+                                "lhs": {
+                                    "rhs": "funcall",
+                                    "lhs": [
                                         "ID \"getchar\"",
                                         "LPAREN",
                                         {
-                                            "exp": "params",
-                                            "token": null
+                                            "rhs": "params",
+                                            "lhs": null
                                         },
                                         "RPAREN"
                                     ]
@@ -31,14 +31,14 @@
                         ]
                     },
                     {
-                        "exp": "vardec",
-                        "token": [
+                        "rhs": "vardec",
+                        "lhs": [
                             "VAR",
                             "ID \"result\"",
                             "ASSIGN",
                             {
-                                "exp": "exp",
-                                "token": "STRING \"\""
+                                "rhs": "exp",
+                                "lhs": "STRING \"\""
                             }
                         ]
                     }
@@ -46,75 +46,75 @@
             },
             "IN",
             {
-                "exp": "exps",
-                "token": [
+                "rhs": "exps",
+                "lhs": [
                     {
-                        "exp": "exp",
-                        "token": {
-                            "exp": "ctlexp",
-                            "token": [
+                        "rhs": "exp",
+                        "lhs": {
+                            "rhs": "ctlexp",
+                            "lhs": [
                                 "WHILE",
                                 {
-                                    "exp": "exp",
-                                    "token": {
-                                        "exp": "opexp",
-                                        "token": [
+                                    "rhs": "exp",
+                                    "lhs": {
+                                        "rhs": "opexp",
+                                        "lhs": [
                                             {
-                                                "exp": "exp",
-                                                "token": {
-                                                    "exp": "lvalue",
-                                                    "token": "ID \"input\""
+                                                "rhs": "exp",
+                                                "lhs": {
+                                                    "rhs": "lvalue",
+                                                    "lhs": "ID \"input\""
                                                 }
                                             },
                                             "NEQ",
                                             {
-                                                "exp": "exp",
-                                                "token": "STRING \"\\n\""
+                                                "rhs": "exp",
+                                                "lhs": "STRING \"\\n\""
                                             }
                                         ]
                                     }
                                 },
                                 "DO",
                                 {
-                                    "exp": "exp",
-                                    "token": [
+                                    "rhs": "exp",
+                                    "lhs": [
                                         "LPAREN",
                                         {
-                                            "exp": "exps",
-                                            "token": [
+                                            "rhs": "exps",
+                                            "lhs": [
                                                 {
-                                                    "exp": "exp",
-                                                    "token": [
+                                                    "rhs": "exp",
+                                                    "lhs": [
                                                         {
-                                                            "exp": "lvalue",
-                                                            "token": "ID \"result\""
+                                                            "rhs": "lvalue",
+                                                            "lhs": "ID \"result\""
                                                         },
                                                         "ASSIGN",
                                                         {
-                                                            "exp": "exp",
-                                                            "token": {
-                                                                "exp": "funcall",
-                                                                "token": [
+                                                            "rhs": "exp",
+                                                            "lhs": {
+                                                                "rhs": "funcall",
+                                                                "lhs": [
                                                                     "ID \"concat\"",
                                                                     "LPAREN",
                                                                     {
-                                                                        "exp": "params",
-                                                                        "token": [
+                                                                        "rhs": "params",
+                                                                        "lhs": [
                                                                             {
-                                                                                "exp": "param",
-                                                                                "token": {
-                                                                                    "exp": "lvalue",
-                                                                                    "token": "ID \"result\""
+                                                                                "rhs": "param",
+                                                                                "lhs": {
+                                                                                    "rhs": "lvalue",
+                                                                                    "lhs": "ID \"result\""
                                                                                 }
                                                                             },
                                                                             "COMMA",
                                                                             {
-                                                                                "exp": "params",
-                                                                                "token": {
-                                                                                    "exp": "param",
-                                                                                    "token": {
-                                                                                        "exp": "lvalue",
-                                                                                        "token": "ID \"input\""
+                                                                                "rhs": "params",
+                                                                                "lhs": {
+                                                                                    "rhs": "param",
+                                                                                    "lhs": {
+                                                                                        "rhs": "lvalue",
+                                                                                        "lhs": "ID \"input\""
                                                                                     }
                                                                                 }
                                                                             }
@@ -128,25 +128,25 @@
                                                 },
                                                 "SEMICOLON",
                                                 {
-                                                    "exp": "exps",
-                                                    "token": {
-                                                        "exp": "exp",
-                                                        "token": [
+                                                    "rhs": "exps",
+                                                    "lhs": {
+                                                        "rhs": "exp",
+                                                        "lhs": [
                                                             {
-                                                                "exp": "lvalue",
-                                                                "token": "ID \"input\""
+                                                                "rhs": "lvalue",
+                                                                "lhs": "ID \"input\""
                                                             },
                                                             "ASSIGN",
                                                             {
-                                                                "exp": "exp",
-                                                                "token": {
-                                                                    "exp": "funcall",
-                                                                    "token": [
+                                                                "rhs": "exp",
+                                                                "lhs": {
+                                                                    "rhs": "funcall",
+                                                                    "lhs": [
                                                                         "ID \"concat\"",
                                                                         "LPAREN",
                                                                         {
-                                                                            "exp": "params",
-                                                                            "token": null
+                                                                            "rhs": "params",
+                                                                            "lhs": null
                                                                         },
                                                                         "RPAREN"
                                                                     ]
@@ -165,38 +165,38 @@
                     },
                     "SEMICOLON",
                     {
-                        "exp": "exps",
-                        "token": {
-                            "exp": "exp",
-                            "token": {
-                                "exp": "funcall",
-                                "token": [
+                        "rhs": "exps",
+                        "lhs": {
+                            "rhs": "exp",
+                            "lhs": {
+                                "rhs": "funcall",
+                                "lhs": [
                                     "ID \"print\"",
                                     "LPAREN",
                                     {
-                                        "exp": "params",
-                                        "token": {
-                                            "exp": "param",
-                                            "token": {
-                                                "exp": "exp",
-                                                "token": {
-                                                    "exp": "funcall",
-                                                    "token": [
+                                        "rhs": "params",
+                                        "lhs": {
+                                            "rhs": "param",
+                                            "lhs": {
+                                                "rhs": "exp",
+                                                "lhs": {
+                                                    "rhs": "funcall",
+                                                    "lhs": [
                                                         "ID \"concat\"",
                                                         "LPAREN",
                                                         {
-                                                            "exp": "params",
-                                                            "token": [
+                                                            "rhs": "params",
+                                                            "lhs": [
                                                                 {
-                                                                    "exp": "exp",
-                                                                    "token": "STRING \"echo: \""
+                                                                    "rhs": "exp",
+                                                                    "lhs": "STRING \"echo: \""
                                                                 },
                                                                 "COMMA",
                                                                 {
-                                                                    "exp": "param",
-                                                                    "token": {
-                                                                        "exp": "lvalue",
-                                                                        "token": "ID \"result\""
+                                                                    "rhs": "param",
+                                                                    "lhs": {
+                                                                        "rhs": "lvalue",
+                                                                        "lhs": "ID \"result\""
                                                                     }
                                                                 }
                                                             ]

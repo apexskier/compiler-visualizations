@@ -19,6 +19,9 @@
             stroke: #ccc;
             stroke-width: 1.5px;
         }
+        .link.root {
+            stroke: #fff;
+        }
         #steps {
             padding: 0;
         }
@@ -40,7 +43,9 @@
     <div class="container">
         <h1>Compiler Visualizations</h1>
         <h2>Parser</h2>
-        <ul id="steps"></ul>
+
+        <p class="instructions">Blue nodes are terminals, or tokens coming from a lexer.</p>
+
         <progress id="progress"></progress>
         <button id="play" type="button">Play</button>
         <button id="prev" type="button">Previous</button>
