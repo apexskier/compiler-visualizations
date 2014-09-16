@@ -133,7 +133,16 @@ d3.json("echo.absyn.json", function(error, data) {
      * When a node is reached with a different parent, insert the parent of the
      * set into the working tree, call update, and return the parent.
      */
-    var steps = [Clone(rootNode)];
+
+    function savedTreeDraw(t) {
+        return (function(t) {
+            return function() {
+                update(t);
+            }
+        })(Clone(t));
+    }
+
+    var steps = [savedTreeDraw(rootNode)];
 
     (function walkTree(root) {
         if (root.children) {
@@ -173,7 +182,7 @@ d3.json("echo.absyn.json", function(error, data) {
     })(parsetree);
 
     parsetree.state = "initial";
-    steps.push(Clone(rootNode));
+    steps.push(savedTreeDraw(rootNode));
 
     var absyn = (function walkTree(root) {
         var ret;
@@ -186,8 +195,15 @@ d3.json("echo.absyn.json", function(error, data) {
             }).join(' ') || "null";
             ret = grm[lhs][rhs].apply(this, root.children.map(function(d) {
                 d.state = "queued";
-                steps.push(Clone(rootNode));
                 var ret = walkTree(d);
+                if (d.children) {
+                    d.name = JSON.stringify(ret, null, "  ");
+                    steps.push((function(t) {
+                        return function() {
+                            update(t);
+                        }
+                    })(Clone(rootNode)));
+                }
                 return ret;
             }));
         } else if (root.hasOwnProperty("children")) {
@@ -205,7 +221,7 @@ d3.json("echo.absyn.json", function(error, data) {
     function tick() {
         if (currentStep < +progress.attr('max')) {
             timer = setTimeout(function() {
-                setTree(++currentStep);
+                step(++currentStep);
                 tick();
             }, duration);
         } else {
@@ -219,17 +235,17 @@ d3.json("echo.absyn.json", function(error, data) {
         .on('click', function(e) {
             var x = d3.mouse(this)[0];
             var el = d3.select(this);
-            setTree(parseInt((x / el.node().offsetWidth) * (+el.attr('max') + 1)));
+            step(parseInt((x / el.node().offsetWidth) * (+el.attr('max') + 1)));
         });
 
     d3.select("#prev").on('click', function() {
-        setTree(currentStep == 0 ? currentStep : --currentStep);
+        step(currentStep == 0 ? currentStep : --currentStep);
     });
     d3.select("#next").on('click', function() {
-        setTree(currentStep == steps.length - 1 ? currentStep : ++currentStep);
+        step(currentStep == steps.length - 1 ? currentStep : ++currentStep);
     });
     d3.select("#restart").on('click', function() {
-        setTree(0);
+        step(0);
     });
     var playPauseButton = d3.select("#play");
     function play() {
@@ -249,10 +265,10 @@ d3.json("echo.absyn.json", function(error, data) {
     });
 
     var newX0;
-    function setTree(i) {
+    function step(i) {
         currentStep = i;
         progress.attr('value', i);
-        update(steps[i]);
+        steps[i]();
     }
     function update(source) {
         // Compute the new tree layout.
@@ -361,5 +377,5 @@ d3.json("echo.absyn.json", function(error, data) {
         newX0 = source.x0;
     }
 
-    setTree(0);
+    step(0);
 });
