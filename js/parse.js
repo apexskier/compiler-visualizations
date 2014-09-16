@@ -21,6 +21,8 @@ var svg = d3.select("#tree").append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+var extra = d3.select('#extrastuff').select('pre');
+
 function Clone(obj) {
     var copy;
     if (obj == null || "object" != typeof obj) return obj;
@@ -56,11 +58,12 @@ d3.json("echo.absyn.json", function(error, data) {
         x0: height / 2,
         y0: 0
     }
+    var allNodes = [];
     var parsetree = (function processNode(input, p) {
         if (input == null) {
             return null;
         }
-        var n = input.rhs + " " + idCount;
+        var n = input.rhs;
         var ret = {
             "name": n,
             "parent": p,
@@ -74,27 +77,28 @@ d3.json("echo.absyn.json", function(error, data) {
         switch (typeof input.lhs) {
             case "object":
                 if (input.lhs instanceof Array) {
-                    var children = input.lhs.map(function(v) { return processNode(v, n) });
+                    var children = input.lhs.map(function(v) { return processNode(v, ret.id) });
                     ret.children = children.filter(function(v) {
                         return !!v;
                     });
                 } else {
-                    var child = processNode(input.lhs, n);
+                    var child = processNode(input.lhs, ret.id);
                     ret.children = child ? [child] : null;
                 }
                 break;
             case "string":
-                var child = processNode(input.lhs, n);
+                var child = processNode(input.lhs, ret.id);
                 ret.children = child ? [child] : null;
                 break;
             case "undefined":
-                ret.name = input + " " + (idCount - 1);
+                ret.name = input;
                 break;
             default:
                 console.warn(input);
         }
+        allNodes[ret.id] = ret;
         return ret;
-    })(data, rootNode.name);
+    })(data, 0);
     var leaves = (function getLeaves(d){
         if (d.children) {
             tempLeaves = new Array();
@@ -140,14 +144,14 @@ d3.json("echo.absyn.json", function(error, data) {
             // Add the root into the tree!
             var idxs = [];
             rootNode.children.forEach(function(d) {
-                if (d._parent == root.name) {
+                if (d._parent == root.id) {
                     d.state = "selected";
                 }
             });
-            steps.push(Clone(rootNode));
+            //steps.push(Clone(rootNode));
             root.children = [];
             rootNode.children.forEach(function(d) {
-                if (d._parent == root.name) {
+                if (d._parent == root.id) {
                     d.parent = d._parent;
                     d.state = d.hasOwnProperty("children") ? "initial" : "leaf";
                     // remove from root's children
@@ -165,50 +169,38 @@ d3.json("echo.absyn.json", function(error, data) {
         } else {
             root.state = "queued";
         }
-        steps.push(Clone(rootNode));
+        //steps.push(Clone(rootNode));
     })(parsetree);
 
     parsetree.state = "initial";
     steps.push(Clone(rootNode));
 
     var absyn = (function walkTree(root) {
+        var ret;
+        root.state = "queued";
         if (root.children) {
             // Add the root into the tree!
             var lhs = root.name.split(' ')[0];
             var rhs = root.children.map(function(d) {
                 return d.name.split(' ')[0];
-            }).join(' ');
-            console.log(lhs + " -> " + rhs);
-            var ret = grm[lhs][rhs].apply(this, root.children.map(function(d) { return walkTree(d); }));
-            console.log(ret);
-            return ret;
+            }).join(' ') || "null";
+            ret = grm[lhs][rhs].apply(this, root.children.map(function(d) {
+                d.state = "queued";
+                steps.push(Clone(rootNode));
+                var ret = walkTree(d);
+                return ret;
+            }));
+        } else if (root.hasOwnProperty("children")) {
+            var lhs = root.name.split(' ')[0];
+            var rhs = "null";
+            ret = grm[lhs][rhs]();
         } else {
-            return root.children;
+            tmp = root.name.split(' ');
+            if (tmp.length > 1) { tmp.shift(); }
+            return tmp.join(' ');
         }
-        //steps.push(Clone(rootNode));
+        return ret;
     })(parsetree);
-    console.log(absyn);
-
-    /*(function deleteLeaves(tree) {
-        var childs = tree.children;
-        if (childs) {
-            var l = childs.length;
-            var toRemove = [];
-            for (var i = 0; i < l; i++) {
-                if (childs[i].children) {
-                    deleteLeaves(childs[i]);
-                } else {
-                    toRemove.push({i: i, d: childs[i]});
-                }
-            }
-            toRemove.reverse();
-            toRemove.forEach(function(d) {
-                delete childs[d.i];
-                childs.splice(d.i, 1);
-            });
-        }
-    })(rootNode);
-    steps.push(Clone(rootNode));*/
 
     function tick() {
         if (currentStep < +progress.attr('max')) {
@@ -291,12 +283,7 @@ d3.json("echo.absyn.json", function(error, data) {
             .attr("dy", ".35em")
             .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
             .text(function(d) {
-                a = d.name.split(' ');
-                if (a.length > 1) {
-                    a.pop();
-                }
-                //a.push(d.id);
-                return a.join(' ');
+                return d.name;
             })
             .style("fill-opacity", 1e-6);
 
@@ -321,6 +308,9 @@ d3.json("echo.absyn.json", function(error, data) {
             });
 
         nodeUpdate.select("text")
+            .text(function(d) {
+                return d.name;
+            })
             .style("fill-opacity", 1);
 
         // Transition exiting nodes to the parent's new position.
