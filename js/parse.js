@@ -56,62 +56,44 @@ d3.json("echo.absyn.json", function(error, data) {
         x0: height / 2,
         y0: 0
     }
-    var absyn = (function processNode(input, p) {
+    var parsetree = (function processNode(input, p) {
         if (input == null) {
             return null;
         }
+        var n = input.rhs + " " + idCount;
+        var ret = {
+            "name": n,
+            "parent": p,
+            "_parent": p,
+            "state": "initial",
+            "id": idCount++
+        }
+        if (p == n) {
+            console.warn(p);
+        }
         switch (typeof input.lhs) {
             case "object":
-                var n = input.rhs + " " + idCount;
                 if (input.lhs instanceof Array) {
-                    var children = input.lhs.map(function(v) { return processNode(v, n) }),
-                    children = children.filter(function(v) {
+                    var children = input.lhs.map(function(v) { return processNode(v, n) });
+                    ret.children = children.filter(function(v) {
                         return !!v;
                     });
-                    return {
-                        "name": n,
-                        "children": children,
-                        "parent": p,
-                        "state": "initial",
-                        "_parent": p,
-                        "id": idCount++
-                    }
                 } else {
                     var child = processNode(input.lhs, n);
-                    var children = child ? [child] : null;
-                    return {
-                        "name": n,
-                        "children": children,
-                        "parent": p,
-                        "state": "initial",
-                        "_parent": p,
-                        "id": idCount++
-                    };
+                    ret.children = child ? [child] : null;
                 }
+                break;
             case "string":
-                var n = input.rhs + " " + idCount;
                 var child = processNode(input.lhs, n);
-                var children = child ? [child] : null;
-                return {
-                    "name": n,
-                    "children": children,
-                    "parent": p,
-                    "state": "initial",
-                    "_parent": p,
-                    "id": idCount++
-                };
+                ret.children = child ? [child] : null;
+                break;
             case "undefined":
-                return {
-                    "name": input + " " + idCount,
-                    "parent": p,
-                    "state": "initial",
-                    "_parent": p,
-                    "id": idCount++
-                };
+                ret.name = input + " " + (idCount - 1);
+                break;
             default:
-                console.log("ERROR");
-                console.log(input);
+                console.warn(input);
         }
+        return ret;
     })(data, rootNode.name);
     var leaves = (function getLeaves(d){
         if (d.children) {
@@ -128,8 +110,9 @@ d3.json("echo.absyn.json", function(error, data) {
                 return [];
             }
         }
-    })(absyn);
+    })(parsetree);
 
+    console.log(parsetree);
     leaves.forEach(function(d, i) {
         d._parent = d.parent;
         d.parent = "program";
@@ -183,11 +166,28 @@ d3.json("echo.absyn.json", function(error, data) {
             root.state = "queued";
         }
         steps.push(Clone(rootNode));
-    })(absyn);
+    })(parsetree);
 
-    absyn.state = "selected";
-    absyn.state = "initial";
+    parsetree.state = "initial";
     steps.push(Clone(rootNode));
+
+    var absyn = (function walkTree(root) {
+        if (root.children) {
+            // Add the root into the tree!
+            var lhs = root.name.split(' ')[0];
+            var rhs = root.children.map(function(d) {
+                return d.name.split(' ')[0];
+            }).join(' ');
+            console.log(lhs + " -> " + rhs);
+            var ret = grm[lhs][rhs].apply(this, root.children.map(function(d) { return walkTree(d); }));
+            console.log(ret);
+            return ret;
+        } else {
+            return root.children;
+        }
+        //steps.push(Clone(rootNode));
+    })(parsetree);
+    console.log(absyn);
 
     /*(function deleteLeaves(tree) {
         var childs = tree.children;

@@ -8,37 +8,52 @@
                 "rhs": "decs",
                 "lhs": [
                     {
-                        "rhs": "vardec",
-                        "lhs": [
-                            "VAR",
-                            "ID \"input\"",
-                            "ASSIGN",
-                            {
-                                "rhs": "exp",
-                                "lhs": {
-                                    "rhs": "funcall",
-                                    "lhs": [
-                                        "ID \"getchar\"",
-                                        "LPAREN",
-                                        {
-                                            "rhs": "params",
-                                            "lhs": null
-                                        },
-                                        "RPAREN"
-                                    ]
+                        "rhs": "dec",
+                        "lhs": {
+                            "rhs": "vardec",
+                            "lhs": [
+                                "VAR",
+                                "ID \"input\"",
+                                "ASSIGN",
+                                {
+                                    "rhs": "exp",
+                                    "lhs": {
+                                        "rhs": "funcall",
+                                        "lhs": [
+                                            "ID \"getchar\"",
+                                            "LPAREN",
+                                            {
+                                                "rhs": "params",
+                                                "lhs": null
+                                            },
+                                            "RPAREN"
+                                        ]
+                                    }
                                 }
-                            }
-                        ]
+                            ]
+                        }
                     },
                     {
-                        "rhs": "vardec",
+                        "rhs": "decs",
                         "lhs": [
-                            "VAR",
-                            "ID \"result\"",
-                            "ASSIGN",
                             {
-                                "rhs": "exp",
-                                "lhs": "STRING \"\""
+                                "rhs": "dec",
+                                "lhs": {
+                                    "rhs": "vardec",
+                                    "lhs": [
+                                        "VAR",
+                                        "ID \"result\"",
+                                        "ASSIGN",
+                                        {
+                                            "rhs": "exp",
+                                            "lhs": "STRING \"\""
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "rhs": "decs",
+                                "lhs": null
                             }
                         ]
                     }
@@ -99,26 +114,32 @@
                                                                     "LPAREN",
                                                                     {
                                                                         "rhs": "params",
-                                                                        "lhs": [
-                                                                            {
-                                                                                "rhs": "param",
-                                                                                "lhs": {
-                                                                                    "rhs": "lvalue",
-                                                                                    "lhs": "ID \"result\""
-                                                                                }
-                                                                            },
-                                                                            "COMMA",
-                                                                            {
-                                                                                "rhs": "params",
-                                                                                "lhs": {
+                                                                        "lhs": {
+                                                                            "rhs": "param",
+                                                                            "lhs": [
+                                                                                {
                                                                                     "rhs": "param",
                                                                                     "lhs": {
-                                                                                        "rhs": "lvalue",
-                                                                                        "lhs": "ID \"input\""
+                                                                                        "rhs": "exp",
+                                                                                        "lhs": {
+                                                                                            "rhs": "lvalue",
+                                                                                            "lhs": "ID \"result\""
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "COMMA",
+                                                                                {
+                                                                                    "rhs": "param",
+                                                                                    "lhs": {
+                                                                                        "rhs": "exp",
+                                                                                        "lhs": {
+                                                                                            "rhs": "lvalue",
+                                                                                            "lhs": "ID \"input\""
+                                                                                        }
                                                                                     }
                                                                                 }
-                                                                            }
-                                                                        ]
+                                                                            ]
+                                                                        }
                                                                     },
                                                                     "RPAREN"
                                                                 ]
@@ -186,20 +207,29 @@
                                                         "LPAREN",
                                                         {
                                                             "rhs": "params",
-                                                            "lhs": [
-                                                                {
-                                                                    "rhs": "exp",
-                                                                    "lhs": "STRING \"echo: \""
-                                                                },
-                                                                "COMMA",
-                                                                {
-                                                                    "rhs": "param",
-                                                                    "lhs": {
-                                                                        "rhs": "lvalue",
-                                                                        "lhs": "ID \"result\""
+                                                            "lhs": {
+                                                                "rhs": "param",
+                                                                "lhs": [
+                                                                    {
+                                                                        "rhs": "param",
+                                                                        "lhs": {
+                                                                            "rhs": "exp",
+                                                                            "lhs": "STRING \"echo: \""
+                                                                        }
+                                                                    },
+                                                                    "COMMA",
+                                                                    {
+                                                                        "rhs": "param",
+                                                                        "lhs": {
+                                                                            "rhs": "exp",
+                                                                            "lhs": {
+                                                                                "rhs": "lvalue",
+                                                                                "lhs": "ID \"result\""
+                                                                            }
+                                                                        }
                                                                     }
-                                                                }
-                                                            ]
+                                                                ]
+                                                            }
                                                         },
                                                         "RPAREN"
                                                     ]
