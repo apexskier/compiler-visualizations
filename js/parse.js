@@ -37,13 +37,13 @@ function Clone(obj) {
 
     if (obj instanceof Object) {
         copy = {};
-        ["children", "id", "state", "active", "x0", "y0", "name"].forEach(function(d) {
+        ["children", "id", "label", "state", "active", "x0", "y0", "name"].forEach(function(d) {
             if (obj.hasOwnProperty(d)) {
                 copy[d] = Clone(obj[d]);
             }
         });
         if (obj.parent) {
-            copy.parent = obj.parent.name;
+            copy.parent = obj.parent;
         }
         return copy;
     }
@@ -65,11 +65,11 @@ d3.json("echo.absyn.json", function(error, data) {
         }
         var n = input.rhs;
         var ret = {
-            "name": n,
-            "parent": p,
-            "_parent": p,
-            "state": "initial",
-            "id": idCount++
+            name: n,
+            parent: p,
+            _parent: p,
+            state: "initial",
+            id: idCount++
         }
         if (p == n) {
             console.warn(p);
@@ -77,17 +77,17 @@ d3.json("echo.absyn.json", function(error, data) {
         switch (typeof input.lhs) {
             case "object":
                 if (input.lhs instanceof Array) {
-                    var children = input.lhs.map(function(v) { return processNode(v, ret.id) });
+                    var children = input.lhs.map(function(v) { return processNode(v, ret) });
                     ret.children = children.filter(function(v) {
                         return !!v;
                     });
                 } else {
-                    var child = processNode(input.lhs, ret.id);
+                    var child = processNode(input.lhs, ret);
                     ret.children = child ? [child] : null;
                 }
                 break;
             case "string":
-                var child = processNode(input.lhs, ret.id);
+                var child = processNode(input.lhs, ret);
                 ret.children = child ? [child] : null;
                 break;
             case "undefined":
@@ -116,10 +116,10 @@ d3.json("echo.absyn.json", function(error, data) {
         }
     })(parsetree);
 
-    console.log(parsetree);
+    //console.log(parsetree);
     leaves.forEach(function(d, i) {
         d._parent = d.parent;
-        d.parent = "program";
+        d.parent = rootNode;
         d.state = "leaf";
         rootNode.children.push(d);
     });
@@ -153,14 +153,14 @@ d3.json("echo.absyn.json", function(error, data) {
             // Add the root into the tree!
             var idxs = [];
             rootNode.children.forEach(function(d) {
-                if (d._parent == root.id) {
+                if (d._parent.id == root.id) {
                     d.state = "selected";
                 }
             });
             //steps.push(Clone(rootNode));
             root.children = [];
             rootNode.children.forEach(function(d) {
-                if (d._parent == root.id) {
+                if (d._parent.id == root.id) {
                     d.parent = d._parent;
                     d.state = d.hasOwnProperty("children") ? "initial" : "leaf";
                     // remove from root's children
@@ -184,11 +184,69 @@ d3.json("echo.absyn.json", function(error, data) {
     parsetree.state = "initial";
     steps.push(savedTreeDraw(rootNode));
 
+    function deleteNode(n) {
+        n.parent.children.splice(n.parent.children.indexOf(n), 1);
+        delete n;
+    }
+    function convAbsyn(node, obj) {
+        console.log(obj);
+        node.name = obj.type || node.children ? node.children[0].name : node.name;
+        var oldchildren = node.children;
+        node.children = [];
+        switch (typeof obj) {
+            case "object":
+                if (obj instanceof Array) {
+                    if (obj.length == 0) {
+                        deleteNode(node);
+                        return;
+                    }
+                } else {
+                    var found = false, name;
+                    for (name in obj) {
+                        found = true;
+                        break;
+                    }
+                    if (!found) {
+                        deleteNode(node);
+                    }
+                    for (key in obj) {
+                        if (key != "type") {
+                            var match = oldchildren.filter(function(d) {
+                                //console.log(d.name + ", " + key);
+                                return d.name == key;
+                            });
+                            if (match.length > 0) {
+                                console.log(match.length);
+                                node.children.push(match[0]);
+                            } else {
+                                node.children.push({
+                                    name: obj[key],
+                                    parent: node,
+                                    label: key,
+                                    obj: obj,
+                                    parent_: node,
+                                    state: "initial",
+                                    id: idCount++
+                                });
+                            }
+                        }
+                    }
+                }
+                break;
+            default:
+                console.warn(obj);
+        }
+    }
+
     var absyn = (function walkTree(root) {
         var ret;
         root.state = "queued";
         if (root.children) {
-            // Add the root into the tree!
+            steps.push((function(t) {
+                return function() {
+                    update(t);
+                }
+            })(Clone(rootNode)));
             var lhs = root.name.split(' ')[0];
             var rhs = root.children.map(function(d) {
                 return d.name.split(' ')[0];
@@ -196,14 +254,22 @@ d3.json("echo.absyn.json", function(error, data) {
             ret = grm[lhs][rhs].apply(this, root.children.map(function(d) {
                 d.state = "queued";
                 var ret = walkTree(d);
-                if (d.children) {
-                    d.name = JSON.stringify(ret, null, "  ");
-                    steps.push((function(t) {
-                        return function() {
-                            update(t);
-                        }
-                    })(Clone(rootNode)));
+                if (d.hasOwnProperty("children")) {
+                    if (!d.children) {
+                        steps.push((function(t) {
+                            return function() {
+                                update(t);
+                            }
+                        })(Clone(rootNode)));
+                    }
+                    //console.log(ret);
+                    convAbsyn(d, ret);
                 }
+                steps.push((function(t) {
+                    return function() {
+                        update(t);
+                    }
+                })(Clone(rootNode)));
                 return ret;
             }));
         } else if (root.hasOwnProperty("children")) {
@@ -295,6 +361,17 @@ d3.json("echo.absyn.json", function(error, data) {
             .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
         nodeEnter.append("text")
+            .attr("class", "secondary-label")
+            .attr("y", "-10")
+            .attr("text-anchor", "middle")
+            .text(function(d) {
+                console.log(d.label);
+                return d.label;
+            })
+            .style("fill-opacity", 1e-6);
+
+        nodeEnter.append("text")
+            .attr("class", "main-label")
             .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
             .attr("dy", ".35em")
             .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
@@ -323,7 +400,13 @@ d3.json("echo.absyn.json", function(error, data) {
                 };
             });
 
-        nodeUpdate.select("text")
+        nodeUpdate.select(".secondary-label")
+            .text(function(d) {
+                return d.label;
+            })
+            .style("fill-opacity", 1);
+
+        nodeUpdate.select(".main-label")
             .text(function(d) {
                 return d.name;
             })
