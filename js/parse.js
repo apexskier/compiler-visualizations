@@ -116,7 +116,6 @@ d3.json("echo.absyn.json", function(error, data) {
         }
     })(parsetree);
 
-    //console.log(parsetree);
     leaves.forEach(function(d, i) {
         d._parent = d.parent;
         d.parent = rootNode;
@@ -189,8 +188,26 @@ d3.json("echo.absyn.json", function(error, data) {
         delete n;
     }
     function convAbsyn(node, obj) {
-        console.log(obj);
-        node.name = obj.type || node.children ? node.children[0].name : node.name;
+        //node.name = obj.type || node.children ? node.children[0].name : node.name;
+        if (obj.hasOwnProperty("type")) {
+            node.name = obj.type;
+        }
+        node.obj = obj;
+        if (node.children) {
+            if (node.children.length == obj.length) {
+                console.log([node.parent.children.indexOf(node), 1].concat(node.children));
+                node.parent.children.splice.apply([node.parent.children.indexOf(node), 1].concat(node.children));
+                return;
+            }
+            var match = node.children.filter(function(d) {
+                return obj == d.obj || ((d.obj instanceof Array) ? obj == d.obj[0] : false);
+            });
+            if (match.length > 0) {
+                node = match[0];
+                node.parent.children = match[0].children;
+                return;
+            }
+        }
         var oldchildren = node.children;
         node.children = [];
         switch (typeof obj) {
@@ -209,25 +226,36 @@ d3.json("echo.absyn.json", function(error, data) {
                     if (!found) {
                         deleteNode(node);
                     }
+                    var i = -1;
                     for (key in obj) {
                         if (key != "type") {
+                            i++;
                             var match = oldchildren.filter(function(d) {
-                                //console.log(d.name + ", " + key);
-                                return d.name == key;
+                                var n = d.name.split(' ').pop(),
+                                    o = obj[key];
+                                return o == n || o == d.obj;
                             });
                             if (match.length > 0) {
-                                console.log(match.length);
+                                match[0].state = "initial";
+                                match[0].parent = node;
                                 node.children.push(match[0]);
                             } else {
-                                node.children.push({
-                                    name: obj[key],
+                                var child = {
                                     parent: node,
                                     label: key,
-                                    obj: obj,
                                     parent_: node,
                                     state: "initial",
                                     id: idCount++
-                                });
+                                };
+                                if (typeof obj[key] == "string") {
+                                    child.name = obj[key];
+                                    //child.children = node.children;
+                                } else if (oldchildren.length == 1 && typeof obj[key] == "object") {
+                                    child.children = oldchildren[0].children[i].children;
+                                } else {
+                                    child.name = obj.type;
+                                }
+                                node.children.push(child);
                             }
                         }
                     }
@@ -262,7 +290,6 @@ d3.json("echo.absyn.json", function(error, data) {
                             }
                         })(Clone(rootNode)));
                     }
-                    //console.log(ret);
                     convAbsyn(d, ret);
                 }
                 steps.push((function(t) {
@@ -270,6 +297,7 @@ d3.json("echo.absyn.json", function(error, data) {
                         update(t);
                     }
                 })(Clone(rootNode)));
+                d.state = "initial";
                 return ret;
             }));
         } else if (root.hasOwnProperty("children")) {
@@ -281,6 +309,7 @@ d3.json("echo.absyn.json", function(error, data) {
             if (tmp.length > 1) { tmp.shift(); }
             return tmp.join(' ');
         }
+        root.state = "initial";
         return ret;
     })(parsetree);
 
@@ -365,7 +394,6 @@ d3.json("echo.absyn.json", function(error, data) {
             .attr("y", "-10")
             .attr("text-anchor", "middle")
             .text(function(d) {
-                console.log(d.label);
                 return d.label;
             })
             .style("fill-opacity", 1e-6);
